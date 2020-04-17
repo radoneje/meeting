@@ -226,13 +226,12 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                     })
 
                     socket.on('closeStream', async(data) =>{
-
                         var v=_this.videos.filter(v=>v.streamid ==data.streamid)
                         if(v.length==0)
                             return;
                         var videoItem=v[0];
 
-                        console.log("closeStream", data.streamid,videoItem.streamid,videoItem.id );
+                        console.warn("closeStream", data.streamid,videoItem.streamid,videoItem.id );
 
                         if(videoItem.peerConnection) {
                             videoItem.peerConnection.close();

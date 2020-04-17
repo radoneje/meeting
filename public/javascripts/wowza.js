@@ -89,17 +89,17 @@ async function getVideoFromWowza(receiverItem, wssUrl, BitrateCfg, clbk) {
     var doGetAvailableStreams = false;
     var repeaterRetryCount=0;
     var streamInfo = {applicationName:wssUrl.applicationName, streamName:receiverItem.id, sessionId:"123"};
-console.log("streamInfo", streamInfo);
+//console.log("streamInfo", streamInfo);
     wsConnection = new WebSocket(wssUrl.url);
-    console.log(wssUrl.url)
+ //   console.log(wssUrl.url)
     wsConnection.binaryType = 'arraybuffer';
     wsConnection.onopen = function () {
-        console.log("wsConnection receiver onopen");
+       // console.log("wsConnection receiver onopen");
         peerConnection = new RTCPeerConnection(peerConnectionConfig);
        // peerConnection.onicecandidate = gotIceCandidate;
         peerConnection.ontrack = gotRemoteTrack;
 
-        console.log("wsConnection send");
+      //  console.log("wsConnection send");
         sendGetOffer();
          //  wsConnection.send('{"direction":"play", "command":"getOffer"}')
             // wsConnection.send('{"direction":"play", "command":"getOffer", "streamInfo":'+JSON.stringify(streamInfo)+', "userData":'+JSON.stringify({myDt:1223})+'}');
@@ -128,7 +128,7 @@ console.log("streamInfo", streamInfo);
             var streamInfoResponse = msgJSON['streamInfo'];
             if (streamInfoResponse !== undefined) {
                 streamInfo.sessionId = streamInfoResponse.sessionId;
-                console.log("streamInfo.sessionId",streamInfo.sessionId)
+           //     console.log("streamInfo.sessionId",streamInfo.sessionId)
             }
             var sdpData = msgJSON['sdp'];
             if (sdpData !== undefined) {
@@ -155,16 +155,16 @@ console.log("streamInfo", streamInfo);
     }
     wsConnection.onclose = function()
     {
-        console.log("wsConnection receiver .onclose");
+     //   console.log("wsConnection receiver .onclose");
     }
 
     function sendGetOffer() {
-        console.log("sendGetOffer: ");
+      //  console.log("sendGetOffer: ");
         wsConnection.send( JSON.stringify({"direction":"play", "command":"getOffer", "streamInfo": streamInfo , "userData": {myDt: 1223} }));
 
     }
     function gotRemoteTrack(event) {
-        console.log('receiver gotRemoteTrack: kind:' + event.track.kind + ' stream:' + event.streams[0]);
+      //  console.log('receiver gotRemoteTrack: kind:' + event.track.kind + ' stream:' + event.streams[0]);
         try {
             receiverItem.elem.srcObject = event.streams[0];
         } catch (error) {
