@@ -185,7 +185,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
 
                     socket.on('closeStream', async(data) =>{
                         console.log("closeStream");
-                        var v=_this.videos.filter(v=>v.streamid ==data.streamid)
+                        var v=_this.videos.filter(v=>v.streamid !=data.streamid)
                         if(v.length==0)
                             return;
                         var videoItem=v[0];
