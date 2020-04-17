@@ -73,6 +73,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
             myVideoBlack:function(){
                 var _this=this;
                 var els=_this.videos.filter(r=>r.isMyVideo && !r.isDesktop)
+                console.log("myVideoBlack", els)
                 if(els.length==0)
                     return;
                 var item=els[0];
