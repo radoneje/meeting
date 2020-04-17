@@ -88,7 +88,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
             showDesktop:async function () {
                 var _this=this;
                 var stream = await  navigator.mediaDevices.getDisplayMedia({ video: true,audio: false});
-                var videoItem={id:1, isMyVideo:true, isDesktop:true, user:user}
+                var videoItem={id:2, isMyVideo:true, isDesktop:true, user:user}
                 this.videos.push(videoItem)
 
                 setTimeout(async ()=>{
@@ -226,8 +226,8 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                     })
 
                     socket.on('closeStream', async(data) =>{
-                        console.log("closeStream");
-                        var v=_this.videos.filter(v=>v.streamid !=data.streamid)
+                        console.log("closeStream", data.streamid);
+                        var v=_this.videos.filter(v=>v.streamid ==data.streamid)
                         if(v.length==0)
                             return;
                         var videoItem=v[0];
