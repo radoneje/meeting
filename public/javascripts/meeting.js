@@ -210,10 +210,10 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                                      receiverItem.peerConnection=ret.peerConnection;
                                      receiverItem.peerConnection.onconnectionstatechange=(event)=>{
                                          var cs=receiverItem.peerConnection.connectionState
-                                         if(cs=="disconnected" || cs=="failed" || cs=="closed")
+                                       /*  if(cs=="disconnected" || cs=="failed" || cs=="closed")
                                          {
                                              _this.videos=_this.videos.filter(v=>v.streamid !=data.streamid)
-                                         }
+                                         }*/
 
                                      }
                                      },
