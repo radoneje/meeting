@@ -243,7 +243,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                     })
                     socket.on('userDisconnnect', async(data) =>{
                         console.log('userDisconnnect', data);
-                        _this.videos=_this.videos.filter(v=>v.streamid !=data.streamid)
+                        _this.videos=_this.videos.filter(v=>v.streamid !=data.streamData.streamid)
                     })
 
 
