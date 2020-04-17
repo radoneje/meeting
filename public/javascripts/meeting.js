@@ -226,16 +226,20 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                     })
 
                     socket.on('closeStream', async(data) =>{
-                        console.log("closeStream", data.streamid);
+
                         var v=_this.videos.filter(v=>v.streamid ==data.streamid)
                         if(v.length==0)
                             return;
                         var videoItem=v[0];
+
+                        console.log("closeStream", data.streamid,videoItem.streamid,videoItem.id );
+
                         if(videoItem.peerConnection) {
                             videoItem.peerConnection.close();
                             videoItem.peerConnection = null;
                         }
-                        _this.videos=_this.videos.filter(r=>r.streamid!=data.streamid);
+
+                        _this.videos=_this.videos.filter(r=>r.streamid!=videoItem.streamid);
 
                     })
                     socket.on('userDisconnnect', async(data) =>{
