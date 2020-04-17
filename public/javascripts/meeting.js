@@ -24,6 +24,9 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
             firstConnect:true,
             user:user,
             isMyDtShow:false,
+            isMyMute:false,
+            isMyVideoEnabled:false,
+            myTracks:[],
 
         },
         methods:{
@@ -47,6 +50,38 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                     socket.emit("closeStream", {streamid:v[0].streamid});
                 }
 
+
+            },
+            myVideoMute:function(){
+                var _this=this;
+                var els=_this.videos.filter(r=>r.isMyVideo && !r.isDesktop)
+                if(els.length==0)
+                    return;
+                var item=els[0];
+                var tracks=item.stream.getTracks();
+                _this.isMyMute=!_this.isMyMute;
+                tracks.forEach(tr=>{
+                    if(tr.kind=="audio") {
+                        //tr.muted = _this.isMyMute;
+                        tr.enabled = !_this.isMyMute;
+                        console.log("find",tr)
+
+                    }
+                })
+
+            },
+            myVideoBlack:function(){
+                var _this=this;
+                var els=_this.videos.filter(r=>r.isMyVideo && !r.isDesktop)
+                if(els.length==0)
+                    return;
+                var item=els[0];
+                _this.isMyVideoEnabled=!_this.isMyVideoEnabled;
+                item.tracks.forEach(tr=>{
+                    if(tr.kind=="video") {
+                        tr.enabled = !_this.isMyVideoEnabled;
+                    }
+                })
 
             },
             showDesktop:function () {
@@ -127,10 +162,14 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                     videoItem.streamid=socket.id;
                     videoItem.elem=document.getElementById('video_'+videoItem.id);
                     var stream = await  navigator.mediaDevices.getUserMedia(_this.constraints);
-                    videoItem.stream=stream;
-                    videoItem.elem.srcObject=stream;
-                    videoItem.elem.onplay=async ()=>{
 
+
+                 //   videoItem.elem.onplay=async ()=>{
+                        videoItem.tracks=stream.getTracks();
+                        var newStream= new MediaStream();
+                        videoItem.tracks.forEach(t=>newStream.addTrack(t))
+                        videoItem.stream=newStream;
+                        videoItem.elem.srcObject=newStream;
                         publishVideoToWowza(videoItem.streamid,videoItem.stream,WowzaCfg.data, BitrateCfg.data,
                             (ret)=>{
                             console.log("my Stream Published", ret)
@@ -148,7 +187,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
 
                         } ,
                             (err)=>{console.warn("wowza publish err", err)})
-                    }
+                //    }
                     socket.on('newStream', async(data) =>{
                         console.log('OnNewStream', data, _this.videos)
 
