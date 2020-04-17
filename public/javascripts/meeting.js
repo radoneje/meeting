@@ -84,14 +84,16 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                 })
 
             },
-            showDesktop:function () {
+            showDesktop:async function () {
                 var _this=this;
+                var stream = await  navigator.mediaDevices.getDisplayMedia({ video: true,audio: false});
                 var videoItem={id:1, isMyVideo:true, isDesktop:true, user:user}
                 this.videos.push(videoItem)
 
                 setTimeout(async ()=>{
                     videoItem.elem=document.getElementById('video_'+videoItem.id);
-                    var stream = await  navigator.mediaDevices.getDisplayMedia({ video: true,audio: false});
+
+
                     videoItem.elem.srcObject=stream;
                     videoItem.stream=stream;
                     videoItem.streamid=socket.id+"Dt";
