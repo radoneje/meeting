@@ -35,12 +35,12 @@ class socket{
             });
             socket.on("selfVideoStarted",(msg,  data)=>{
                 if(id)
-                    _this.clients.startVideo(id, socket.id)
+                       _this.clients.startVideo(id, socket.id)
             });
             socket.on("newStream",(data)=>{
                 var cls=_this.clients.clients.filter(c=>c.socket.id==socket.id);
                 if(cls.length>0){
-                    cls[0].streamData=data;
+                    cls[0].streamData.push(data);
                     _this.clients.sendToRoomUsers("newStream", data,cls[0].meetid)
                 }
                 //msg, datamsg, data
@@ -48,23 +48,28 @@ class socket{
             socket.on("closeStream",(data)=>{
                 var cls=_this.clients.clients.filter(c=>c.socket.id==socket.id);
                 if(cls.length>0){
-                    cls[0].streamData=data;
+                    cls[0].streamData=cls[0].streamData.filter(r=>r.streamid!=data.streamid);
                     _this.clients.sendToRoomUsers("closeStream", data,cls[0].meetid)
                 }
                 //msg, datamsg, data
             })
             socket.on("getMeetingVideos",(data)=>{
-                console.log("getMeetingVideos")
+
                 var arr=this.clients.clients.filter(c=>{
-                    return c.isActive && c.streamData});
+                    return c.isActive && c.streamData.length>0});
+                var i=0;
                 arr.forEach(c=>{
+                    i++;
                     setTimeout(()=>{
                         try {
-                            socket.emit("newStream", c.streamData)
+                            c.streamData.forEach(d=>{
+                                socket.emit("newStream", d)
+                            })
+
                         }catch (e) {
                             console.warn("error send new stream")
                         }
-                    },1000)
+                    },500*i)
 
                 })
             })

@@ -13,6 +13,7 @@ class Clients{
         data.user.isActive=true;
         data.date=new Date();
         data.isVideo=false;
+        data.streamData=[],
         this.clients.push(data);
         this.emit=this.sendToRoomUsers
         setTimeout(()=>{_this.sendToRoomUsers("userConnnect",  data.user,data.roomid)}, 0);
@@ -24,7 +25,10 @@ class Clients{
             if(c.socket.id==id) {
                 c.isActive = false;
                 c.isVideo=false;
-                _this.sendToRoomUsers("userDisconnnect", {id:c.user.id,streamData:c.streamData}, c.meetid)
+                c.streamData.forEach(d=>{
+                    _this.sendToRoomUsers("userDisconnnect", {id:c.user.id,streamData:d}, c.meetid)
+                })
+
             }
         })
     }

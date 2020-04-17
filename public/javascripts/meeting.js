@@ -6,6 +6,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
     var user=dt.data;
     var WowzaCfg=null;
     var BitrateCfg=null;
+    var arrVideo=[]
     console.log("user", user)
     var app=new Vue({
         el:"#app",
@@ -42,7 +43,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
             },
             hideDesktop:function(){
                 var _this=this;
-                var v=_this.videos.filter(r=>r.isMyVideo && r.isDesktop);
+                var v=arrVideo.filter(r=>r.isMyVideo && r.isDesktop);
                 if(v.length>0)
                 {
 
@@ -54,7 +55,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
             },
             myVideoMute:function(){
                 var _this=this;
-                var els=_this.videos.filter(r=>r.isMyVideo && !r.isDesktop)
+                var els=arrVideo.filter(r=>r.isMyVideo && !r.isDesktop)
                 if(els.length==0)
                     return;
                 var item=els[0];
@@ -72,7 +73,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
             },
             myVideoBlack:function(){
                 var _this=this;
-                var els=_this.videos.filter(r=>r.isMyVideo && !r.isDesktop)
+                var els=arrVideo.filter(r=>r.isMyVideo && !r.isDesktop)
                 console.log("myVideoBlack", els)
                 if(els.length==0)
                     return;
@@ -89,15 +90,18 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                 var _this=this;
                 var stream = await  navigator.mediaDevices.getDisplayMedia({ video: true,audio: false});
                 var videoItem={id:2, isMyVideo:true, isDesktop:true, user:user}
-                this.videos.push(videoItem)
-                await createVideo(videoItem.id, true, user)
+                arrVideo.push(videoItem)
+
                 setTimeout(async ()=>{
-                    videoItem.elem=document.getElementById('video_'+videoItem.id);
 
 
-                    videoItem.elem.srcObject=stream;
                     videoItem.stream=stream;
                     videoItem.streamid=socket.id+"Dt";
+                    videoItem.id=socket.id+"Dt";
+                    await createVideo(videoItem.id, true, user)
+                    videoItem.elem=document.getElementById('video_'+videoItem.id);
+                    videoItem.elem.srcObject=stream;
+
                     videoItem.elem.onplay=async ()=>{};
                     stream.addEventListener('inactive', e => {
                         _this.isMyDtShow=false;
@@ -140,7 +144,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
 
 
             var videoItem={id:0, isMyVideo:true, user:user}
-            this.videos.push(videoItem)
+            arrVideo.push(videoItem)
             var video= await createVideo(videoItem.id,videoItem.isMyVideo, user);
             setTimeout(async ()=>{
 
@@ -174,9 +178,14 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                         videoItem.tracks.forEach(t=>newStream.addTrack(t))
                         videoItem.stream=newStream;
                         videoItem.elem.srcObject=newStream;
+                        videoItem.audioElem=document.getElementById('meetVideoLevel'+videoItem.id)
+                        videoItem.analiser=await createAudioAnaliser(newStream, (val)=>{
+                           // console.log(val, parseFloat((val/100)*100));
+                            videoItem.audioElem.style.height=parseFloat((val/100)*100)+"%"
+                        })
                         publishVideoToWowza(videoItem.streamid,videoItem.stream,WowzaCfg.data, BitrateCfg.data,
                             (ret)=>{
-                            console.log("my Stream Published", ret)
+                         //   console.log("my Stream Published", ret)
                                 videoItem.peerConnection=ret.peerConnection;
                                 setTimeout(()=> {
                                     socket.emit("newStream", {
@@ -193,28 +202,33 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                             (err)=>{console.warn("wowza publish err", err)})
                 //    }
                     socket.on('newStream', async(data) =>{
-                        console.log('OnNewStream', data, _this.videos)
+                        console.log('newStream',data.streamid )
 
                         if(meetRoomid!=data.meetid)
                             return; //видео чужих комнат
 
-                        var  ff=_this.videos.filter(v=>v.streamid==data.streamid)
+                        var  ff=arrVideo.filter(v=>v.streamid==data.streamid)
                         if(ff.length>0)
                             return;//убираем повтор моего видео
 
                         var receiverItem={id:data.streamid, isMyVideo:false, user:data.user, streamid:data.streamid}
-                        this.videos.push(receiverItem)
+                        arrVideo.push(receiverItem)
                         var video= await createVideo(data.streamid,false,data.user );
                         setTimeout(async ()=>{
                             receiverItem.elem=document.getElementById('video_'+receiverItem.id);
                             getVideoFromWowza(receiverItem, WowzaCfg.data, BitrateCfg.data,
-                                 (ret)=> {
+                                 async (ret)=> {
+                                     /*(receiverItem.analiser=await createAudioAnaliser(receiverItem.srcObject, (val)=>{
+                                          console.log(val, parseFloat((val/100)*100));
+                                         receiverItem.audioElem.style.height=parseFloat((val/100)*100)+"%"
+                                     })*/
+
                                      receiverItem.peerConnection=ret.peerConnection;
                                      receiverItem.peerConnection.onconnectionstatechange=(event)=>{
                                          var cs=receiverItem.peerConnection.connectionState
                                        /*  if(cs=="disconnected" || cs=="failed" || cs=="closed")
                                          {
-                                             _this.videos=_this.videos.filter(v=>v.streamid !=data.streamid)
+                                             arrVideo=arrVideo.filter(v=>v.streamid !=data.streamid)
                                          }*/
 
                                      }
@@ -228,24 +242,23 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                     })
 
                     socket.on('closeStream', async(data) =>{
-                        var v=_this.videos.filter(v=>v.streamid ==data.streamid)
+                        var v=arrVideo.filter(v=>v.streamid ==data.streamid)
                         if(v.length==0)
                             return;
                         var videoItem=v[0];
 
                         console.warn("closeStream", data.streamid,videoItem.streamid,videoItem.id );
-
                         if(videoItem.peerConnection) {
                             videoItem.peerConnection.close();
                             videoItem.peerConnection = null;
                         }
-
-                        _this.videos=_this.videos.filter(r=>r.streamid!=videoItem.streamid);
+                        arrVideo=arrVideo.filter(r=>r.streamid!=videoItem.streamid);
+                        removeVideo(data.streamid)
 
                     })
                     socket.on('userDisconnnect', async(data) =>{
-                        console.log('userDisconnnect', data);
-                        _this.videos=_this.videos.filter(v=>v.streamid !=data.streamData.streamid)
+                        arrVideo=arrVideo.filter(v=>v.streamid !=data.streamData.streamid)
+                        removeVideo(data.streamData.streamid)
                     })
 
 
@@ -258,7 +271,15 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
     })
 
 }
+function removeVideo(id){
+    console.log("removeVideo", id)
+    var elem=document.getElementById('meetVideoItem_'+id);
+    if(elem)
+        elem.parentNode.removeChild(elem)
+}
+
 async function  createVideo(id, muted, user) {
+    console.log("Create Video")
     var meetVideoBox=document.getElementById("meetVideoBox");
     var meetVideoItem=document.createElement("div");
     meetVideoItem.classList.add("meetVideoItem");
@@ -270,9 +291,37 @@ async function  createVideo(id, muted, user) {
     if(muted)
         video.muted=true;
     var cap=document.getElementById("meetVideoCap_"+id)
-    cap.innerText=user.i||"" + " "+user.f||""
+    cap.innerText=(user.i || "") + " "+(user.f || "")
     return video
 
+}
+async function createAudioAnaliser(stream, clbk) {
+    try {
+        audioContext = new AudioContext();
+        analyser = audioContext.createAnalyser();
+        microphone = audioContext.createMediaStreamSource(stream);
+        javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+        analyser.smoothingTimeConstant = 0.8;
+        analyser.fftSize = 1024;
+        microphone.connect(analyser);
+        analyser.connect(javascriptNode);
+        javascriptNode.connect(audioContext.destination);
+        javascriptNode.onaudioprocess = function () {
+            var array = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(array);
+            var values = 0;
+            var length = array.length;
+            for (var i = 0; i < length; i++) {
+                values += (array[i]);
+            }
+            var average = values / length;
+            //console.log(Math.round(average ));
+            clbk(average)
+        }
+
+        return audioContext;
+    }
+    catch(e){ return null}
 }
 
 

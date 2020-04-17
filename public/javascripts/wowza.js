@@ -21,7 +21,7 @@ async function publishVideoToWowza(id,stream,wssUrl,bitrate, clbk, err){
     wsConnection.binaryType = 'arraybuffer';
     var streamInfo = {applicationName:wssUrl.applicationName, streamName:id, sessionId:"123"};
     wsConnection.onopen = async () =>{
-        console.log("wsConnection.onopen");
+       // console.log("wsConnection.onopen");
         peerConnection = new RTCPeerConnection(peerConnectionConfig);
         peerConnection.onicecandidate = gotIceCandidate;
         stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
@@ -54,7 +54,7 @@ async function publishVideoToWowza(id,stream,wssUrl,bitrate, clbk, err){
         else {
             var sdpData = msgJSON['sdp'];
             if (sdpData !== undefined) {
-                console.log('sdp: ', msgJSON['sdp']);
+             //   console.log('sdp: ', msgJSON['sdp']);
                 var enhanceData = new Object();
                 enhanceData.audioBitrate = Number(bitrate.audio);
                 enhanceData.videoBitrate = Number(bitrate.video);
