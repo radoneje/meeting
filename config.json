@@ -1,0 +1,16 @@
+{
+  "serverName": "https://webinar.sberbank-school.ru",
+  "localServerName": "http://localhost",
+  "port": 8090,
+  "encoderPort": 8081,
+   "encoderServer": "localhost",
+  "encodeFolder": "public/files",
+  "ffmpegPath": "/usr/local/bin/ffmpeg",
+  "pgConnection":  {
+      "host" : "127.0.0.1",
+      "user" : "postgres",
+      "password" : "gbplf13",
+      "database" : "rustv"
+      },
+  "sha256Secret": "dfczgegrby"
+}

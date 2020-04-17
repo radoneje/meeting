@@ -1,0 +1,80 @@
+
+
+
+const io= require('socket.io')
+class socket{
+    constructor(server, knex){
+        this.clients=require('./clientsHandler')
+        //this.emit=this.clients.sendToRoomUsers;
+        this.io=require('socket.io')(server, {path:"/meeting/socket"} );
+        this.io.binaryType = 'arraybuffer';
+        var  _this=this;
+        this.io.on('connection', async (socket)=> {
+            console.log("connected!!!")
+            var id=null;
+            var meetid=null;
+            socket.on("hello",async ( data)=>{
+                var users=await knex.select("*").from("t_eventusers").where({id:data.userid})
+
+                meetid=data.meetid;
+                var client={
+                    socket:socket,
+                    user:users[0],
+                    meetid:data.meetid,
+                }
+                id=_this.clients.add(client)
+                client.id=id;
+
+            })
+
+
+            socket.on("disconnect",(msg,  data)=>{
+                console.log("disconnect",id);
+              //  if(id)
+                    _this.clients.disActive(socket.id);
+            });
+            socket.on("selfVideoStarted",(msg,  data)=>{
+                if(id)
+                    _this.clients.startVideo(id, socket.id)
+            });
+            socket.on("newStream",(data)=>{
+                var cls=_this.clients.clients.filter(c=>c.socket.id==socket.id);
+                if(cls.length>0){
+                    cls[0].streamData=data;
+                    _this.clients.sendToRoomUsers("newStream", data,cls[0].meetid)
+                }
+                //msg, datamsg, data
+            })
+            socket.on("closeStream",(data)=>{
+                var cls=_this.clients.clients.filter(c=>c.socket.id==socket.id);
+                if(cls.length>0){
+                    cls[0].streamData=data;
+                    _this.clients.sendToRoomUsers("closeStream", data,cls[0].meetid)
+                }
+                //msg, datamsg, data
+            })
+            socket.on("getMeetingVideos",(data)=>{
+                console.log("getMeetingVideos")
+                var arr=this.clients.clients.filter(c=>{
+                    return c.isActive && c.streamData});
+                arr.forEach(c=>{
+                    setTimeout(()=>{
+                        try {
+                            socket.emit("newStream", c.streamData)
+                        }catch (e) {
+                            console.warn("error send new stream")
+                        }
+                    },1000)
+
+                })
+            })
+
+
+
+
+
+
+        });
+    }
+}
+module.exports = socket;

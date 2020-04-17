@@ -1,0 +1,305 @@
+div ok
+div
+    video#localVideo(width="360" controls muted autoplay)
+    video#remoteVideo(width="360" controls muted autoplay)
+div
+    input#startReceive(type="button" value="receive" onclick="startReceive()")
+    script.
+        var wsConnection=null;
+        var url='wss://mi.may24.pro/webrtc-session.json'
+        var localVideo = document.getElementById('localVideo');
+        var streamInfo = {applicationName:"webrtc", streamName:"myStream", sessionId:"123"};
+        var peerConnectionConfig = {
+            iceServers: [
+                {
+                    'urls': 'turn:re.rustv.ru:3478',
+                    'credential': 'user1',
+                    'username': "user1"
+                }
+            ]};
+        var localStream=null
+        var videoBitrate = 360;
+        var audioBitrate = 64;
+        var constraints =
+            {
+                video:{
+                    aspectRatio: 1.777777778,
+                    frameRate: {max: 30},
+                    width: {min: 320, ideal: 320, max: 1920},
+                    height: {min: 400, ideal: 1080},
+                    facingMode:  "user"},
+                audio: true,
+            };
+        window.RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+        window.RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.webkitRTCIceCandidate;
+        window.RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription;
+
+        navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess)
+        function getUserMediaSuccess(stream) {
+            localVideo.srcObject = stream;
+            localStream=stream;
+            wsConnection = new WebSocket(url);
+            wsConnection.binaryType = 'arraybuffer';
+            wsConnection.onopen = function () {
+                console.log("wsConnection.onopen");
+                peerConnection = new RTCPeerConnection(peerConnectionConfig);
+                peerConnection.onicecandidate = gotIceCandidate;
+                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+                peerConnection.createOffer().then(description => gotDescription(description)).catch(err => errorHandler(err));
+            }
+            wsConnection.onclose = function () {
+                console.log("wsConnection.onclose");
+            }
+
+            wsConnection.onerror = function (evt) {
+                console.log("wsConnection.onerror: " + JSON.stringify(evt));
+            }
+            wsConnection.onmessage = function (evt) {
+               // console.log("wsConnection.onmessage: " + evt.data);
+                var msgJSON = JSON.parse(evt.data);
+
+                var msgStatus = Number(msgJSON['status']);
+                var msgCommand = msgJSON['command'];
+
+                if (msgStatus != 200) {
+                    $("#sdpDataTag").html(msgJSON['statusDescription']);
+                    console.warn('err 0')
+                   // stopPublisher();
+                } else {
+                    var sdpData = msgJSON['sdp'];
+                    if (sdpData !== undefined) {
+                        console.log('sdp: ',  msgJSON['sdp']);
+                        var enhanceData = new Object();
+
+                        if (audioBitrate !== undefined)
+                            enhanceData.audioBitrate = Number(audioBitrate);
+                        if (videoBitrate !== undefined)
+                            enhanceData.videoBitrate = Number(videoBitrate);
+                        console.log(enhanceData.audioBitrate, enhanceData.videoBitrate )
+                    sdpData.sdp = enhanceSDP(sdpData.sdp, enhanceData);
+                        peerConnection
+                            .setRemoteDescription(new RTCSessionDescription(sdpData))
+                            .then(() => {} ).catch(err => errorHandler(err));
+
+                    }
+                    var iceCandidates = msgJSON['iceCandidates'];
+                    if (iceCandidates !== undefined) {
+                        for (var index in iceCandidates) {
+                            console.log('iceCandidates: ' + iceCandidates[index]);
+                            peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidates[index]));
+                        }
+                    }
+                }
+            }
+        }
+        function gotIceCandidate(event) {
+            console.log('gotIceCandidate 0')
+            if (event.candidate != null) {
+                console.log('gotIceCandidate: ' + JSON.stringify({'ice': event.candidate}));
+            }
+        }
+        function gotDescription(description) {
+            // Uncomment to debug the SDP if_definst_nformation
+
+            description.sdp=description.sdp.replace('VP8/90000', 'H264/90000')
+            console.log( "description", description)
+            //
+
+            console.log('gotDescription')
+            peerConnection
+                .setLocalDescription(description)
+                .then(() => wsConnection.send('{"direction":"publish", "command":"sendOffer", "streamInfo":' + JSON.stringify(streamInfo) + ', "sdp":' + JSON.stringify(description) + ', "userData":' + JSON.stringify({myDt:1223}) + '}')).
+            catch(err => console.log('set description error', err));
+
+        }
+        function errorHandler(error) {
+            console.warn(error);
+        }
+
+        function startReceive() {
+            var WremoteVideo = null;
+            var WpeerConnection = null;
+            var WpeerConnectionConfig = { iceServers:
+            [
+               {
+                    'urls': 'turn:re.rustv.ru:3478',
+                    'credential': 'user1',
+                    'username': "user1"
+                }
+            ]};
+            var WlocalStream = null;
+            var WwsURL = "wss://localhost.streamlock.net/webrtc-session.json";
+            var WwsConnection = null;
+            var WuserData = {param1: "value1"};
+            var WrepeaterRetryCount = 0;
+            var WnewAPI = false;
+            var WdoGetAvailableStreams = false;
+
+            WremoteVideo = document.getElementById('remoteVideo');
+            WwsConnection = new WebSocket(url);
+            WwsConnection.binaryType = 'arraybuffer';
+            WwsConnection.onopen = function () {
+                console.log("wsConnection.onopen");
+                WpeerConnection = new RTCPeerConnection(WpeerConnectionConfig);
+                //WpeerConnection.onicecandidate = gotWIceCandidate;
+                WpeerConnection.ontrack = WgotRemoteTrack;
+                WwsConnection.send('{"direction":"play", "command":"getOffer", "streamInfo":'+JSON.stringify(streamInfo)+', "userData":'+JSON.stringify({myDt:1223})+'}');
+            }
+            WwsConnection.onmessage = async function (evt) {
+                console.log("wsConnection.onmessage: " + evt.data);
+                var msgJSON = JSON.parse(evt.data);
+
+                var msgStatus = Number(msgJSON['status']);
+                var msgCommand = msgJSON['command'];
+                if (msgStatus == 514) // repeater stream not ready
+                {}
+                else if (msgStatus != 200)
+                {} else {
+
+                    var streamInfoResponse = msgJSON['streamInfo'];
+                    if (streamInfoResponse !== undefined) {
+                        streamInfo.sessionId = streamInfoResponse.sessionId;
+                        console.log("streamInfo.sessionId",streamInfo.sessionId)
+                    }
+
+                    var sdpData = msgJSON['sdp'];
+                    if (sdpData !== undefined) {
+                        console.log('sdp: ' + JSON.stringify(msgJSON['sdp']));
+
+                        // We mundge the SDP here, before creating an Answer
+                        // If you can get the new MediaAPI to work this might
+                        // not be needed.
+                       // msgJSON.sdp.sdp = enhanceSDP(msgJSON.sdp.sdp);
+                        console.log("remote descr before")
+                        await WpeerConnection.setRemoteDescription(new RTCSessionDescription(msgJSON.sdp));
+                        console.log("remote descr is set")
+                        var answ= await WpeerConnection.createAnswer();//WgotDescription, errorHandler);
+                        console.log("after greate answ", answ);
+                        await WpeerConnection.setLocalDescription(answ);
+                        WwsConnection.send('{"direction":"play", "command":"sendResponse", "streamInfo":'+JSON.stringify(streamInfo)+', "sdp":'+JSON.stringify(answ)+', "userData":'+JSON.stringify({myDt:1223})+'}');
+                       /* WpeerConnection.setRemoteDescription(new RTCSessionDescription(msgJSON.sdp), function () {
+                            console.log("remote descr is set")
+                            WpeerConnection.createAnswer(WgotDescription, errorHandler);
+                        }, errorHandler);*/
+                    }
+                    var iceCandidates = msgJSON['iceCandidates'];
+                    if (iceCandidates !== undefined) {
+                        for (var index in iceCandidates) {
+                            console.log('iceCandidates: ' + JSON.stringify(iceCandidates[index]));
+                            WpeerConnection.addIceCandidate(new RTCIceCandidate(iceCandidates[index]));
+                        }
+                    }
+                }
+
+            }
+            function WgotDescription(description)
+            {
+                console.log('gotDescription');
+                 WpeerConnection.setLocalDescription(description, function ()
+                {
+                    console.log('sendAnswer');
+
+                }, function() {console.log('set description error')});
+            }
+            function WgotRemoteTrack(event) {
+                console.log('gotRemoteTrack: kind:' + event.track.kind + ' stream:' + event.streams[0]);
+                try {
+                    remoteVideo.srcObject = event.streams[0];
+                } catch (error) {
+                    remoteVideo.src = window.URL.createObjectURL(event.streams[0]);
+                }
+            }
+
+        }
+        function enhanceSDP(sdpStr, enhanceData) {
+            // This is a very simple enhance function.
+            // We find the audio and video locations in the SDP file
+            // We find the corresponding c= lines and then we add in
+            // the bandwidth controls for the selected bitrates.
+            //
+            //
+            var sdpLines = sdpStr.split(/\r\n/);
+            var sdpSection = 'header';
+            var hitMID = false;
+            var sdpStrRet = '';
+
+            sdpLines = sdpStr.split(/\r\n/);
+
+            for (var sdpIndex in sdpLines) {
+                var sdpLine = sdpLines[sdpIndex];
+
+                if (sdpLine.length <= 0)
+                    continue;
+
+                if (sdpLine.includes("transport-cc"))
+                    continue;
+                if (sdpLine.includes("goog-remb"))
+                    continue;
+                if (sdpLine.includes("nack"))
+                    continue;
+
+
+                sdpStrRet += sdpLine;
+
+                if (sdpLine.indexOf("m=audio") === 0) {
+                    sdpSection = 'audio';
+                    hitMID = false;
+                } else if (sdpLine.indexOf("m=video") === 0) {
+                    sdpSection = 'video';
+                    hitMID = false;
+                } else if (sdpLine.indexOf("a=rtpmap") == 0) {
+                    sdpSection = 'bandwidth';
+                    hitMID = false;
+                }
+
+                if (sdpLine.indexOf("a=mid:") === 0 || sdpLine.indexOf("a=rtpmap") == 0) {
+                    if (!hitMID) {
+                        if ('audio'.localeCompare(sdpSection) == 0) {
+                            if (enhanceData.audioBitrate !== undefined) {
+                                sdpStrRet += '\r\nb=CT:' + (enhanceData.audioBitrate);
+                                sdpStrRet += '\r\nb=AS:' + (enhanceData.audioBitrate);
+                            }
+                            hitMID = true;
+                        } else if ('video'.localeCompare(sdpSection) == 0) {
+                            if (enhanceData.videoBitrate !== undefined) {
+                                sdpStrRet += '\r\nb=CT:' + (enhanceData.videoBitrate);
+                                sdpStrRet += '\r\nb=AS:' + (enhanceData.videoBitrate);
+                                if (enhanceData.videoFrameRate !== undefined) {
+                                    sdpStrRet += '\r\na=framerate:' + enhanceData.videoFrameRate;
+                                }
+                            }
+                            hitMID = true;
+                        } else if ('bandwidth'.localeCompare(sdpSection) == 0) {
+                            var rtpmapID;
+                            rtpmapID = getrtpMapID(sdpLine);
+                            if (rtpmapID !== null) {
+                                var match = rtpmapID[2].toLowerCase();
+                                if (('vp9'.localeCompare(match) == 0) || ('vp8'.localeCompare(match) == 0) || ('h264'.localeCompare(match) == 0) ||
+                                    ('red'.localeCompare(match) == 0) || ('ulpfec'.localeCompare(match) == 0) || ('rtx'.localeCompare(match) == 0)) {
+                                    if (enhanceData.videoBitrate !== undefined) {
+                                        sdpStrRet += '\r\na=fmtp:' + rtpmapID[1] + ' x-google-min-bitrate=' + (enhanceData.videoBitrate) + ';x-google-max-bitrate=' + (enhanceData.videoBitrate);
+                                    }
+                                }
+
+                                if (('opus'.localeCompare(match) == 0) || ('isac'.localeCompare(match) == 0) || ('g722'.localeCompare(match) == 0) || ('pcmu'.localeCompare(match) == 0) ||
+                                    ('pcma'.localeCompare(match) == 0) || ('cn'.localeCompare(match) == 0)) {
+                                    if (enhanceData.audioBitrate !== undefined) {
+                                        sdpStrRet += '\r\na=fmtp:' + rtpmapID[1] + ' x-google-min-bitrate=' + (enhanceData.audioBitrate) + ';x-google-max-bitrate=' + (enhanceData.audioBitrate);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                sdpStrRet += '\r\n';
+            }
+            return sdpStrRet;
+        }
+
+        function getrtpMapID(line) {
+            var findid = new RegExp('a=rtpmap:(\\d+) (\\w+)/(\\d+)');
+            var found = line.match(findid);
+            return (found && found.length >= 3) ? found : null;
+        }
