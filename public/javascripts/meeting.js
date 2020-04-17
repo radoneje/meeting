@@ -227,7 +227,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
 
                     socket.on('closeStream', async(data) =>{
                         console.log("closeStream", data.streamid);
-                        var v=_this.videos.filter(v=>v.streamid ==data.streamid)
+                        var v=_this.videos.filter(v=>v.streamid !=data.streamid)
                         if(v.length==0)
                             return;
                         var videoItem=v[0];
@@ -240,7 +240,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                     })
                     socket.on('userDisconnnect', async(data) =>{
                         console.log('userDisconnnect', data);
-                        _this.videos=_this.videos.filter(v=>v.streamid !=data.streamData.streamid)
+                        _this.videos=_this.videos.filter(v=>v.streamid !=data.streamid)
                     })
 
 
