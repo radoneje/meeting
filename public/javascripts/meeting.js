@@ -90,7 +90,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                 var stream = await  navigator.mediaDevices.getDisplayMedia({ video: true,audio: false});
                 var videoItem={id:2, isMyVideo:true, isDesktop:true, user:user}
                 this.videos.push(videoItem)
-
+                await createVideo(videoItem.id, true, user)
                 setTimeout(async ()=>{
                     videoItem.elem=document.getElementById('video_'+videoItem.id);
 
@@ -128,7 +128,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
 
         },
 
-        mounted:function () {
+        mounted:async function () {
             var _this=this;
             document.getElementById("app").style.opacity=1;
 
@@ -141,6 +141,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
 
             var videoItem={id:0, isMyVideo:true, user:user}
             this.videos.push(videoItem)
+            var video= await createVideo(videoItem.id,videoItem.isMyVideo, user);
             setTimeout(async ()=>{
 
             },0);
@@ -203,6 +204,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
 
                         var receiverItem={id:data.streamid, isMyVideo:false, user:data.user, streamid:data.streamid}
                         this.videos.push(receiverItem)
+                        var video= await createVideo(data.streamid,false,data.user );
                         setTimeout(async ()=>{
                             receiverItem.elem=document.getElementById('video_'+receiverItem.id);
                             getVideoFromWowza(receiverItem, WowzaCfg.data, BitrateCfg.data,
@@ -254,6 +256,22 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
 
         }
     })
+
+}
+async function  createVideo(id, muted, user) {
+    var meetVideoBox=document.getElementById("meetVideoBox");
+    var meetVideoItem=document.createElement("div");
+    meetVideoItem.classList.add("meetVideoItem");
+    meetVideoItem.id='meetVideoItem_'+id
+    var dt=await axios.get('/meeting/videoElem/'+id);
+    meetVideoItem.innerHTML=dt.data;
+    meetVideoBox.appendChild(meetVideoItem)
+    var video=document.getElementById("video_"+id)
+    if(muted)
+        video.muted=true;
+    var cap=document.getElementById("meetVideoCap_"+id)
+    cap.innerText=user.i||"" + " "+user.f||""
+    return video
 
 }
 

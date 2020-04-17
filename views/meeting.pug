@@ -38,13 +38,9 @@ block content
                     div(v-if="noWebrtc")
                         div Используйте  Chrome
                     div(v-else)
-                        div.meetVideoBox
+                        div.meetVideoBox#meetVideoBox
 
-                            div.meetVideoItem(v-for="item in videos")
-                                div.meetVideoWrapper
-                                    div.meetVideoWrapperContent
-                                        video.meetVideo(:id="'video_'+item.id", style='transform:none' v-bind:muted="item.isMyVideo" autoplay controls playsinline)
-                                    div.meetVideoCap {{item.user.i ||''}} {{item.user.f ||''}}
+
 
                 div.meetingBtnBox(v-if="!firstConnect")
                     div

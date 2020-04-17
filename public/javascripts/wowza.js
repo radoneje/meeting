@@ -107,7 +107,7 @@ async function getVideoFromWowza(receiverItem, wssUrl, BitrateCfg, clbk) {
 
     }
     wsConnection.onmessage = async (evt) => {
-        console.log("wsConnection.onmessage: " + evt.data);
+     //   console.log("wsConnection.onmessage: " + evt.data);
         var msgJSON = JSON.parse(evt.data);
 
         var msgStatus = Number(msgJSON['status']);

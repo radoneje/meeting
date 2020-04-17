@@ -3,6 +3,9 @@ var router = express.Router();
 
 /* GET home page. */
 
+router.get('/videoelem/:videoid',  async (req, res, next) =>{
+    res.render("videoElem",{id:req.params.videoid})
+})
 
 router.get('/:eventid/:meetingId',  async (req, res, next) =>{
     req.params.eventid=parseInt(req.params.eventid)
@@ -26,5 +29,7 @@ router.get('/:eventid/:meetingId',  async (req, res, next) =>{
     res.render('meeting', { title: 'ON.event Переговорная комната',eventid:req.params.eventid ,meetRoomid:req.params.meetingId});;//, user: req.session["user"+user.eventid]});
 
 })
+
+
 
 module.exports = router;
