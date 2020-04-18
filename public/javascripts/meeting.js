@@ -296,6 +296,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                            // console.log(val, parseFloat((val/100)*100));
                             videoItem.audioElem.style.height=parseFloat((val/100)*100)+"%"
                         })
+
                         publishVideoToWowza(videoItem.streamid,videoItem.stream,WowzaCfg.data, BitrateCfg.data,
                             (ret)=>{
                          //   console.log("my Stream Published", ret)
