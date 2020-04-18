@@ -339,10 +339,17 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                                      receiverItem.peerConnection=ret.peerConnection;
                                      receiverItem.peerConnection.onconnectionstatechange=(event)=>{
                                          var cs=receiverItem.peerConnection.connectionState
-                                       /*  if(cs=="disconnected" || cs=="failed" || cs=="closed")
+                                         console.log("cs", receiverItem.peerConnection.connectionState)
+                                         if(cs=="disconnected" || cs=="failed" || cs=="closed")
                                          {
-                                             arrVideo=arrVideo.filter(v=>v.streamid !=data.streamid)
-                                         }*/
+                                             if(receiverItem.peerConnection) {
+                                                 receiverItem.peerConnection.close();
+                                                 receiverItem.peerConnection = null;
+                                             }
+                                             removeVideo(receiverItem.streamid)
+                                             arrVideo=arrVideo.filter(r=>r.streamid!=receiverItem.streamid);
+
+                                         }
 
                                      }
                                      },
@@ -434,16 +441,16 @@ async function  createVideo(id, muted, user) {
 
 
 
-    unmute.classList.add('hidden')
+    unmute.classList.add('btnHidden')
     mute.addEventListener('click', function (e,id ) {
            video.muted=true;
-           unmute.classList.remove('hidden')
-           mute.classList.add('hidden')
+           unmute.classList.remove('btnHidden')
+           mute.classList.add('btnHidden')
     })
     unmute.addEventListener('click', function (e,id ) {
             video.muted=false;
-            mute.classList.remove('hidden')
-            unmute.classList.add('hidden')
+            mute.classList.remove('btnHidden')
+            unmute.classList.add('btnHidden')
     })
     if(muted) {
         mute.parentNode.removeChild(mute)
