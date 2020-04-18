@@ -1,9 +1,11 @@
 
-
-
+const stripHtml = require("string-strip-html");
 const io= require('socket.io')
+
+
 class socket{
     constructor(server, knex){
+        this.knex=knex;
         this.clients=require('./clientsHandler')
         //this.emit=this.clients.sendToRoomUsers;
         this.io=require('socket.io')(server, {path:"/meeting/socket"} );
@@ -13,18 +15,36 @@ class socket{
             console.log("connected!!!")
             var id=null;
             var meetid=null;
-            socket.on("hello",async ( data)=>{
-                var users=await knex.select("*").from("t_eventusers").where({id:data.userid})
+            var client=null;
+            var user=null;
 
+            setTimeout(()=>{
+                if(user && meetid)
+                _this.clients.sendToRoomUsers("userLogin", {user:user},meetid)
+            },1000)
+            socket.on("hello",async ( data)=>{
+
+                var users=await knex.select("*").from("t_eventusers").where({id:data.userid})
                 meetid=data.meetid;
-                var client={
+                user=users[0];
+                delete user.smsCode;
+                client={
                     socket:socket,
                     user:users[0],
                     meetid:data.meetid,
                 }
                 id=_this.clients.add(client)
                 client.id=id;
-
+                _this.clients.clients.forEach(e=>{
+                    if(e.isActive &&  meetid==data.meetid)
+                        socket.emit("userLogin", {user:e.user})
+                })
+                var res = await this.knex.select("*")
+                    .from("v_meetchat")
+                    .where({meetid:data.meetid})
+                    .orderBy("date")
+                    .limit(50);
+                socket.emit("chatAdd", res,data.meetid)
             })
 
 
@@ -32,6 +52,10 @@ class socket{
                 console.log("disconnect",id);
               //  if(id)
                     _this.clients.disActive(socket.id);
+
+                if(user && meetid)
+                    _this.clients.sendToRoomUsers("userLogOut", {user:user},meetid)
+
             });
             socket.on("selfVideoStarted",(msg,  data)=>{
                 if(id)
@@ -73,7 +97,20 @@ class socket{
 
                 })
             })
+            socket.on("chatAdd",async (data)=>{
 
+                data.text=urlify(stripHtml( data.text))
+                data.date=new Date();
+                data.userid=client.user.id;
+                var res=await this.knex("t_meetchat").insert(data,"*");
+                 res = await this.knex.select("*").from("v_meetchat").where({id: res[0].id});
+                _this.clients.sendToRoomUsers("chatAdd", res,data.meetid)
+            })
+            socket.on("chatFileUpload",async (data)=>{
+                console.log("chatFileUpload", data.id);
+                var res = await this.knex.select("*").from("v_meetchat").where({id: data.id});
+                _this.clients.sendToRoomUsers("chatAdd", res,data.meetid)
+            })
 
 
 
@@ -81,5 +118,13 @@ class socket{
 
         });
     }
+}
+function urlify(text) {
+    var urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, function (url) {
+        return '&nbsp;<a href="' + url + '" target="_blank">' + url + '</a>&nbsp;';
+    })
+    // or alternatively
+    // return text.replace(urlRegex, '<a href="$1">$1</a>')
 }
 module.exports = socket;

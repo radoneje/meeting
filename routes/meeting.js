@@ -31,5 +31,4 @@ router.get('/:eventid/:meetingId',  async (req, res, next) =>{
 })
 
 
-
 module.exports = router;

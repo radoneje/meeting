@@ -6,8 +6,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
     var user=dt.data;
     var WowzaCfg=null;
     var BitrateCfg=null;
-    var arrVideo=[]
-    console.log("user", user)
+    var arrVideo=[];
     var app=new Vue({
         el:"#app",
         data:{
@@ -15,7 +14,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                 {title:"Лента", isActive:false, id:0, logo:'/images/logofeed.svg', logoactive:'/images/logofeeda.svg'},
                 {title:"Чат", isActive:true, id:2, logo:'/images/logochat.svg', logoactive:'/images/logochatactive.svg'},
                 {title:"Люди", isActive:false, id:3, logo:'/images/logousers.svg', logoactive:'/images/logousersa.svg'},
-                {title:"Файлы", isActive:false, id:7, logo:'/images/logofiles.svg', logoactive:'/images/logofilesa.svg'}
+              //  {title:"Файлы", isActive:false, id:7, logo:'/images/logofiles.svg', logoactive:'/images/logofilesa.svg'}
             ],
             constraints:null,
             activeSection:2,
@@ -28,9 +27,96 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
             isMyMute:false,
             isMyVideoEnabled:false,
             myTracks:[],
+            eventRooms:[],
+            chat:[],
+            chatText:'',
+            users:[],
 
         },
         methods:{
+            meetchatTextOnPaste:function(e){
+                var _this=this;
+                var items = event.clipboardData.items;
+                if(items == undefined)
+                    return;
+
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf("image") == -1) continue;
+                    if (items[i].kind === 'file') {
+                        _this.uploafFilesToChat(items[i].getAsFile())
+                    }
+                }
+            },
+            uploafFilesToChat:function(file,  clbk){
+                var _this=this;
+                if(!(file.type.indexOf('image/')==0 ||file.type.indexOf('video/')==0 ))
+                    return  alert("Можно загрузить только фото или видео")
+                var fd = new FormData();
+                fd.append('file', file );
+
+                var xhr = new XMLHttpRequest();
+                var progressElem=document.querySelector(".fileLoadProgress")
+                xhr.upload.onprogress = function(event) {
+                    console.log(parseFloat(event.loaded/event.total));
+                    if(progressElem)
+                        progressElem.style.width=parseFloat(event.loaded/event.total)*100+"%"
+                }
+                xhr.onload = xhr.onerror = function() {
+
+                    if (this.status == 200) {
+                        setTimeout(function () {
+                            var ret=JSON.parse(xhr.response)
+                            console.log("chatFileUpload",ret.id)
+                            socket.emit("chatFileUpload",{id:ret.id, meetid:meetid});
+                            var objDiv = document.getElementById("chatBox");
+                            objDiv.scrollTop = objDiv.scrollHeight;
+                            _this.chatText="";
+                        }, 100)
+                        setTimeout(()=>{
+                            var progressElem=document.querySelector(".fileLoadProgress")
+                            if(progressElem)
+                                progressElem.style.width=0;
+                        }, 4*1000)
+                    } else {
+                        if(progressElem) {
+                            progressElem.style.width = "100%";
+                            progressElem.classList.add('error')
+                        }
+                        setTimeout(()=>{
+                            var progressElem=document.querySelector(".fileLoadProgress")
+                            if(progressElem) {
+                                progressElem.style.width = 0;
+                                progressElem.classList.remove('error')
+                            }
+                        }, 4*1000)
+                        console.warn("error " + this.status);
+                    }
+                    if(clbk)
+                        clbk(this.status)
+                };
+                xhr.open("POST", '/rest/api/meetfileUpload/'+eventid+"/"+meetRoomid+"/"+user.id,true, );
+                //xhr.setRequestHeader("Content-Type", "multipart/form-data")
+                xhr.setRequestHeader("X-data", encodeURI( JSON.stringify({name:file.name||"",type:file.type})))
+
+                xhr.send(fd);
+
+
+            },
+            meetchattextChange:function(e){
+                if(e.keyCode==13 && this.chatText.length>0){
+                    this.meetChattextSend(this)
+                }
+            },
+            meetChattextSend:function(){
+                if(this.chatText.length>0)
+                socket.emit("chatAdd", {text:this.chatText, meetid:meetRoomid});
+                this.chatText='';
+
+            },
+            chatAddSmile:function () {
+                this.chatText+=" :) ";
+                document.getElementById("chatText").focus();
+            },
             sectActive:function (item) {
                 var _this=this;
                 this.sect.forEach(function (e) {
@@ -135,6 +221,13 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
         mounted:async function () {
             var _this=this;
             document.getElementById("app").style.opacity=1;
+
+            axios.get("/rest/api/eventRooms/"+eventid+"/"+0)
+
+                .then(function (r) {
+                    console.log("eventRooms", r.data)
+                    _this.eventRooms = r.data;
+                });
 
             var serverUrl;
             var scheme = "http";
@@ -261,6 +354,29 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                         removeVideo(data.streamData.streamid)
                     })
 
+                    socket.on('userLogin', async(data) =>{
+                        if(_this.users.filter(u=>u.id==data.user.id).length==0)
+                            _this.users.push(data.user)
+                        else
+                            _this.users.forEach(u=>{if(u.id==data.user.id) u.isActive=true})
+
+                    })
+                    socket.on('userLogOut', async(data) =>{
+                        _this.users.forEach(u=>{if(u.id==data.user.id) u.isActive=false})
+                    })
+                    socket.on('chatAdd', async(data) =>{
+                        data.forEach(dt=>{
+                            if(_this.chat.filter(c=>c.id==dt.id).length==0)
+                                _this.chat.push(dt);
+                        })
+                        setTimeout(function () {
+                            var objDiv = document.getElementById("chatBox");
+                            objDiv.scrollTop = objDiv.scrollHeight;
+                        },0)
+
+                    })
+
+
 
                 }
             });
@@ -292,6 +408,44 @@ async function  createVideo(id, muted, user) {
         video.muted=true;
     var cap=document.getElementById("meetVideoCap_"+id)
     cap.innerText=(user.i || "") + " "+(user.f || "")
+
+    var mute=document.getElementById('meetVideoMute'+id)
+    var unmute=document.getElementById('meetVideoUnMute'+id)
+
+
+
+    unmute.classList.add('hidden')
+    mute.addEventListener('click', function (e,id ) {
+           video.muted=true;
+           unmute.classList.remove('hidden')
+           mute.classList.add('hidden')
+    })
+    unmute.addEventListener('click', function (e,id ) {
+            video.muted=false;
+            mute.classList.remove('hidden')
+            unmute.classList.add('hidden')
+    })
+    if(muted) {
+        mute.parentNode.removeChild(mute)
+        unmute.parentNode.removeChild(unmute)
+    }
+    document.getElementById('meetVideoFullScreen'+id).addEventListener("click", function () {
+
+        if (video.requestFullscreen) {
+            video.requestFullscreen();
+        } else if (video.mozRequestFullScreen) {
+            video.mozRequestFullScreen();
+        } else if (video.webkitRequestFullscreen) {
+            video.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+            video.msRequestFullscreen();
+        }
+
+    })
+
+
+
+
     return video
 
 }
