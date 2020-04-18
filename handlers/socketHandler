@@ -33,6 +33,7 @@ class socket{
                     user:users[0],
                     meetid:data.meetid,
                 }
+
                 id=_this.clients.add(client)
                 client.id=id;
                 _this.clients.clients.forEach(e=>{
