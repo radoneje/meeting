@@ -47,6 +47,22 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                     }
                 }
             },
+            chatFileClick:function()
+            {
+                var _this=this;
+                var elem= document.createElement("input");
+                elem.type="file"
+                elem.style.display="none";
+                elem.accept="video/*;capture=camcorder";
+                elem.onchange=function(){
+                    _this.uploafFilesToChat(elem.files[0], function () {
+                        elem.parentNode.removeChild(elem)
+                    })
+
+                }
+                document.body.appendChild(elem);
+                elem.click();
+            },
             uploafFilesToChat:function(file,  clbk){
                 var _this=this;
                 if(!(file.type.indexOf('image/')==0 ||file.type.indexOf('video/')==0 ))
@@ -126,6 +142,10 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                         _this.activeSection=e.id
                     // return e;
                 })
+                if(window.innerWidth<1024)
+                    setTimeout(function () {
+                        window.scrollTo(0,document.body.scrollHeight);
+                    },0)
             },
             hideDesktop:function(){
                 var _this=this;

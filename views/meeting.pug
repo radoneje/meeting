@@ -162,17 +162,25 @@ block content
                                     div.qItemText(v-html="item.text")
                                     div(style="text-align:center")
                                         video.qItemVideo(v-bind:src="'/files/'+item.video" v-if="item.video" controls)
-                                    div.qItemPhoto(v-bind:style="{backgroundImage:'url(/files/'+item.photo+')'}" v-if="item.photo" controls)
+                                    div.qItemPhoto(v-on:click="window.open('/files/'+item.photo)" v-bind:style="{backgroundImage:'url(/files/'+item.photo+')'}" v-if="item.photo" controls)
                                     div.qItemDate {{moment(item.date).format("HH:MM")}}
                             div.rFooter
                                 div.fileLoadProgress
                                 div.askWr
-
-                                    <svg v-on:click="chatAddSmile()" style="cursor:pointer" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12.5 22C18.299 22 23 17.299 23 11.5C23 5.70101 18.299 1 12.5 1C6.70101 1 2 5.70101 2 11.5C2 17.299 6.70101 22 12.5 22Z" stroke="#9A9A9A"/>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M9.5 11C10.3284 11 11 10.1046 11 9C11 7.89543 10.3284 7 9.5 7C8.67157 7 8 7.89543 8 9C8 10.1046 8.67157 11 9.5 11Z" fill="#9A9A9A"/>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M15.5 11C16.3284 11 17 10.1046 17 9C17 7.89543 16.3284 7 15.5 7C14.6716 7 14 7.89543 14 9C14 10.1046 14.6716 11 15.5 11Z" fill="#9A9A9A"/>
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M6.37027 13.5247C6.27006 13.3332 6.41166 13.116 6.62779 13.116H18.5288C18.7536 13.116 18.8943 13.3497 18.7776 13.5418C18.0473 14.7436 15.7228 18.0745 12.3926 18.0745C9.0464 18.0745 6.99138 14.7116 6.37027 13.5247Z" stroke="#9A9A9A"/>
+                                    <svg v-on:click="chatFileClick()" style="cursor:pointer" width="14px" height="17px" viewBox="0 0 14 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+                                    <desc>Created with Sketch.</desc>
+                                    <defs></defs>
+                                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                    <g id="Mobile" transform="translate(-99.000000, -201.000000)" fill="#9A9A9A" fill-rule="nonzero">
+                                    <g id="ic-sharp-file-upload" transform="translate(94.000000, 198.000000)">
+                                    <g id="Icon">
+                                    <path d="M9,16 L15,16 L15,10 L19,10 L12,3 L5,10 L9,10 L9,16 Z M5,18 L19,18 L19,20 L5,20 L5,18 Z" id="Icon-Shape"></path>
+                                    <rect id="Icon-Rectangle-path" fill-opacity="0" x="0" y="0" width="24" height="24"></rect>
+                                    </g>
+                                    </g>
+                                    </g>
+                                    </g>
                                     </svg>
                                     input.ask(v-on:paste="meetchatTextOnPaste($event)" placeholder="Напишите Ваше сообщение" id="chatText" v-model="chatText" v-on:keypress="meetchattextChange($event)")
                                     <svg class="svgSendBtn" v-on:click="meetChattextSend()" width="15px" height="15px" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
