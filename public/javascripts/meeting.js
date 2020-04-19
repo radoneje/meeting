@@ -537,7 +537,7 @@ function draw(v,c, videoTrack, img){
     if((!v.paused || !v.ended ) && videoTrack.enabled)
     {
         c.fillStyle = "#282D33";
-        c.fillRect(x, y, c.canvas.width, c.canvas.height);
+        c.fillRect(0, 0, c.canvas.width, c.canvas.height);
 
         if(v.videoWidth>v.videoHeight) {
             var coof = c.canvas.width / v.videoWidth;
