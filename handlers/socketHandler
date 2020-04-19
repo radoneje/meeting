@@ -42,15 +42,15 @@ class socket{
                         socket.emit("userLogin", {user:e.user})
                 })
                 setTimeout(async ()=>{
-                var res = await this.knex.select("*")
-                    .from("v_meetchat")
-                    .where({meetid:data.meetid})
-                    .orderBy("date")
-                    .limit(50);
-                console.log("chatAdd", res)
-                socket.emit("chatAdd", res,data.meetid)
+                    var res = await this.knex.select("*")
+                        .from("v_meetchat")
+                        .where({meetid:data.meetid})
+                        .orderBy("date")
+                        .limit(50);
+                    console.log("chatAdd", res)
+                    socket.emit("chatAdd", res,data.meetid)
+                }, 500)
             })
-            }, 1000)
 
 
             socket.on("disconnect",(msg,  data)=>{
