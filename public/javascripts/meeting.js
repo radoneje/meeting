@@ -283,37 +283,54 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                     videoItem.streamid=socket.id;
                     videoItem.elem=document.getElementById('video_'+videoItem.id);
                     var stream = await  navigator.mediaDevices.getUserMedia(_this.constraints);
+                    videoItem.elem.srcObject=stream;
+
+                        setTimeout(async ()=>{
+                            videoItem.tracks=stream.getTracks();
+                            var newStream= new MediaStream();
+                            videoItem.tracks.forEach(t=>{if(t.kind=="audio")newStream.addTrack(t)})
+                            videoItem.stream=newStream;
+
+                            videoItem.audioElem=document.getElementById('meetVideoLevel'+videoItem.id)
+                            videoItem.analiser=await createAudioAnaliser(newStream, (val)=>{
+                               // console.log(val, parseFloat((val/100)*100));
+                                videoItem.audioElem.style.height=parseFloat((val/100)*100)+"%"
+                            })
+
+                            var canvas = document.createElement("canvas");
+                            canvas.width=320;
+                            canvas.height=240;
+                            canvas.style.position="fixed"
+                            canvas.style.top="0"
+                            canvas.style.zIndex="10000"
+
+                            document.body.appendChild(canvas)
+                            var context = canvas.getContext('2d');
+                            draw(videoItem.elem,context, 320, 240 )
+                            var canvasStream=await canvas.captureStream(30)
+                            var canvasTracks=canvasStream.getTracks()
+                                console.log(canvasTracks)
+                            canvasTracks.forEach(t=>{if(t.kind=="video")newStream.addTrack(t)})
 
 
-                 //   videoItem.elem.onplay=async ()=>{
-                        videoItem.tracks=stream.getTracks();
-                        var newStream= new MediaStream();
-                        videoItem.tracks.forEach(t=>newStream.addTrack(t))
-                        videoItem.stream=newStream;
-                        videoItem.elem.srcObject=newStream;
-                        videoItem.audioElem=document.getElementById('meetVideoLevel'+videoItem.id)
-                        videoItem.analiser=await createAudioAnaliser(newStream, (val)=>{
-                           // console.log(val, parseFloat((val/100)*100));
-                            videoItem.audioElem.style.height=parseFloat((val/100)*100)+"%"
-                        })
+                            publishVideoToWowza(videoItem.streamid,videoItem.stream,WowzaCfg.data, BitrateCfg.data,
+                                (ret)=>{
+                             //   console.log("my Stream Published", ret)
+                                    videoItem.peerConnection=ret.peerConnection;
+                                    setTimeout(()=> {
+                                        socket.emit("newStream", {
+                                            user: user,
+                                            isDesktop: false,
+                                            meetid: meetRoomid,
+                                            streamid: ret.streamid
+                                        });
+                                        socket.emit("getMeetingVideos");
+                                    }, 0);
 
-                        publishVideoToWowza(videoItem.streamid,videoItem.stream,WowzaCfg.data, BitrateCfg.data,
-                            (ret)=>{
-                         //   console.log("my Stream Published", ret)
-                                videoItem.peerConnection=ret.peerConnection;
-                                setTimeout(()=> {
-                                    socket.emit("newStream", {
-                                        user: user,
-                                        isDesktop: false,
-                                        meetid: meetRoomid,
-                                        streamid: ret.streamid
-                                    });
-                                    socket.emit("getMeetingVideos");
-                                }, 0);
-                                
 
-                        } ,
-                            (err)=>{console.warn("wowza publish err", err)})
+                            } ,
+                                (err)=>{console.warn("wowza publish err", err)})
+                        }, 100)
                 //    }
                     socket.on('newStream', async(data) =>{
                         console.log('newStream',data.streamid )
@@ -459,13 +476,17 @@ async function  createVideo(id, muted, user) {
     }
     document.getElementById('meetVideoFullScreen'+id).addEventListener("click", function () {
 
+        var video=document.getElementById("video_"+id)
+
         if (video.requestFullscreen) {
             video.requestFullscreen();
         } else if (video.mozRequestFullScreen) {
             video.mozRequestFullScreen();
         } else if (video.webkitRequestFullscreen) {
             video.webkitRequestFullscreen();
-        } else if (elem.msRequestFullscreen) {
+        } else if (video.msRequestFullscreen) {
+            video.msRequestFullscreen();
+        } else if (video.webkitEnterFullScreen) {
             video.msRequestFullscreen();
         }
 
@@ -504,6 +525,14 @@ async function createAudioAnaliser(stream, clbk) {
         return audioContext;
     }
     catch(e){ return null}
+}
+function draw(v,c,bc,w,h){
+    if(!v.paused || !v.ended)
+    {
+        console.log("draw")
+        c.drawImage(v,0,0,320,240);
+    }
+    setTimeout(()=>{draw(v,c,bc,w,h)},1000/30)
 }
 
 
