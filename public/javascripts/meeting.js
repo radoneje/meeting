@@ -289,6 +289,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                             videoItem.tracks=stream.getTracks();
                             var newStream= new MediaStream();
                             videoItem.tracks.forEach(t=>{if(t.kind=="audio")newStream.addTrack(t)})
+                            var videoTrack=videoItem.tracks.filter(t=>t.kind=="video")[0]
                             videoItem.stream=newStream;
 
                             videoItem.audioElem=document.getElementById('meetVideoLevel'+videoItem.id)
@@ -309,11 +310,10 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                             var imgElem=document.createElement("img")
                             imgElem.src="/images/camera.svg"
                             //document.body.appendChild(imgElem)
-
-                            draw(videoItem.elem,context, imgElem )
+                            draw(videoItem.elem,context, videoTrack, imgElem )
                             var canvasStream=await canvas.captureStream(30)
                             var canvasTracks=canvasStream.getTracks()
-                                console.log(canvasTracks)
+
                             canvasTracks.forEach(t=>{if(t.kind=="video")newStream.addTrack(t)})
 
 
@@ -530,15 +530,12 @@ async function createAudioAnaliser(stream, clbk) {
     }
     catch(e){ return null}
 }
-function draw(v,c,img){
+function draw(v,c, videoTrack, img){
 
-    var coof = c.canvas.width / img.width;
-    c.drawImage(img, 0,0,img.width* coof,img.height* coof);
 
-    if(!v.paused || !v.ended)
+
+    if((!v.paused || !v.ended ) && videoTrack.enabled)
     {
-
-
         if(v.videoWidth>v.videoHeight) {
             var coof = c.canvas.width / v.videoWidth;
             c.drawImage(v, 0, 0, v.videoWidth * coof, v.videoHeight * coof);
@@ -552,8 +549,13 @@ function draw(v,c,img){
         //videoWidth
        // drawImageProp(c,v);
     }
+    else
+    {
+        var coof = c.canvas.width / img.width;
+        c.drawImage(img, 0,0,img.width* coof,img.height* coof);
+    }
 
-    setTimeout(()=>{draw(v,c,img)},1000/30)
+    setTimeout(()=>{draw(v,c, videoTrack,img)},1000/30)
 }
 
 
