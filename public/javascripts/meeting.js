@@ -298,15 +298,19 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                             })
 
                             var canvas = document.createElement("canvas");
-                            canvas.width=16*40;
-                            canvas.height=9*40;
-                         /*   canvas.style.position="fixed"
+                            canvas.width=16*30;
+                            canvas.height=9*30;
+                           /* canvas.style.position="fixed"
                             canvas.style.top="0"
                             canvas.style.zIndex="10000"
-
                             document.body.appendChild(canvas)*/
+
                             var context = canvas.getContext('2d');
-                            draw(videoItem.elem,context, 0,320, 240 )
+                            var imgElem=document.createElement("img")
+                            imgElem.src="/images/camera.svg"
+                            //document.body.appendChild(imgElem)
+
+                            draw(videoItem.elem,context, imgElem )
                             var canvasStream=await canvas.captureStream(30)
                             var canvasTracks=canvasStream.getTracks()
                                 console.log(canvasTracks)
@@ -526,64 +530,32 @@ async function createAudioAnaliser(stream, clbk) {
     }
     catch(e){ return null}
 }
-function draw(v,c,bc,w,h){
+function draw(v,c,img){
+
+    var coof = c.canvas.width / img.width;
+    c.drawImage(img, 0,0,img.width* coof,img.height* coof);
+
     if(!v.paused || !v.ended)
     {
-        console.log("draw", v)
-        //c.drawImage(v,0,0,w,h);
-        drawImageProp(c,v);
+
+
+        if(v.videoWidth>v.videoHeight) {
+            var coof = c.canvas.width / v.videoWidth;
+            c.drawImage(v, 0, 0, v.videoWidth * coof, v.videoHeight * coof);
+        }
+    else
+        {
+            var coof = c.canvas.height / v.videoHeight;
+            c.drawImage(v, (c.canvas.width-(v.videoWidth * coof))/2, 0, v.videoWidth * coof, v.videoHeight * coof);
+        }
+
+        //videoWidth
+       // drawImageProp(c,v);
     }
-    setTimeout(()=>{draw(v,c,bc,w,h)},1000/30)
+
+    setTimeout(()=>{draw(v,c,img)},1000/30)
 }
-function drawImageProp(ctx, img, x, y, w, h, offsetX, offsetY) {
 
-    if (arguments.length === 2) {
-        x = y = 0;
-        w = ctx.canvas.width;
-        h = ctx.canvas.height;
-    }
-
-    // default offset is center
-    offsetX = typeof offsetX === "number" ? offsetX : 0.5;
-    offsetY = typeof offsetY === "number" ? offsetY : 0.5;
-
-    // keep bounds [0.0, 1.0]
-    if (offsetX < 0) offsetX = 0;
-    if (offsetY < 0) offsetY = 0;
-    if (offsetX > 1) offsetX = 1;
-    if (offsetY > 1) offsetY = 1;
-
-    var iw = img.videoWidth,//img.width,
-        ih = img.videoHeight,//;img.height,
-        r = Math.min(w / iw, h / ih),
-        nw = iw * r,   // new prop. width
-        nh = ih * r,   // new prop. height
-        cx, cy, cw, ch, ar = 1;
-    console.log("ff", iw, ih)
-
-    // decide which gap to fill
-    if (nw < w) ar = w / nw;
-    if (Math.abs(ar - 1) < 1e-14 && nh < h) ar = h / nh;  // updated
-    nw *= ar;
-    nh *= ar;
-
-    // calc source rectangle
-    cw = iw / (nw / w);
-    ch = ih / (nh / h);
-
-    cx = (iw - cw) * offsetX;
-    cy = (ih - ch) * offsetY;
-
-    // make sure source rectangle is valid
-    if (cx < 0) cx = 0;
-    if (cy < 0) cy = 0;
-    if (cw > iw) cw = iw;
-    if (ch > ih) ch = ih;
-
-    // fill image in dest. rectangle
-
-    ctx.drawImage(img, cx, cy, cw, ch,  x, y, w, h);
-}
 
 
 
