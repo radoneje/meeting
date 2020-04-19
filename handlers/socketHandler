@@ -49,7 +49,7 @@ class socket{
                         .limit(50);
                     console.log("chatAdd", res)
                     socket.emit("chatAdd", res,data.meetid)
-                }, 500)
+                }, 2000)
             })
 
 
