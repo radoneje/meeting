@@ -36,6 +36,7 @@ class socket{
 
                 id=_this.clients.add(client)
                 client.id=id;
+                setTimeout(async ()=>{
                 _this.clients.clients.forEach(e=>{
                     if(e.isActive &&  meetid==data.meetid)
                         socket.emit("userLogin", {user:e.user})
@@ -48,6 +49,7 @@ class socket{
                 console.log("chatAdd")
                 socket.emit("chatAdd", res,data.meetid)
             })
+            }, 500)
 
 
             socket.on("disconnect",(msg,  data)=>{
