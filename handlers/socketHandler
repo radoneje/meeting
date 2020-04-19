@@ -36,10 +36,7 @@ class socket{
 
                 id=_this.clients.add(client)
                 client.id=id;
-
-
                 setTimeout(async ()=>{
-
                     _this.clients.clients.forEach(e=>{
                         if(e.isActive &&  meetid==data.meetid)
                             socket.emit("userLogin", {user:e.user})
@@ -50,7 +47,6 @@ class socket{
                         .where({meetid:data.meetid})
                         .orderBy("date")
                         .limit(50);
-                    console.log("chatAdd", res)
                     socket.emit("chatAdd", res,data.meetid)
                 }, 2000)
             })
