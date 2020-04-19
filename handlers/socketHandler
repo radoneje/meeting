@@ -47,7 +47,7 @@ class socket{
                     .where({meetid:data.meetid})
                     .orderBy("date")
                     .limit(50);
-                console.log("chatAdd")
+                console.log("chatAdd", res)
                 socket.emit("chatAdd", res,data.meetid)
             })
             }, 1000)
