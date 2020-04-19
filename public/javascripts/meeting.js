@@ -414,6 +414,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                         _this.users.forEach(u=>{if(u.id==data.user.id) u.isActive=false})
                     })
                     socket.on('chatAdd', async(data) =>{
+                        console.log("chatAdd", data)
                         data.forEach(dt=>{
                             if(_this.chat.filter(c=>c.id==dt.id).length==0)
                                 _this.chat.push(dt);
