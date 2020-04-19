@@ -36,11 +36,12 @@ class socket{
 
                 id=_this.clients.add(client)
                 client.id=id;
-                setTimeout(async ()=>{
+
                 _this.clients.clients.forEach(e=>{
                     if(e.isActive &&  meetid==data.meetid)
                         socket.emit("userLogin", {user:e.user})
                 })
+                setTimeout(async ()=>{
                 var res = await this.knex.select("*")
                     .from("v_meetchat")
                     .where({meetid:data.meetid})
