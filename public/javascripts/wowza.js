@@ -58,7 +58,7 @@ async function publishVideoToWowza(id,stream,wssUrl,bitrate, clbk, err){
                 var enhanceData = new Object();
                 enhanceData.audioBitrate = Number(bitrate.audio);
                 enhanceData.videoBitrate = Number(bitrate.video);
-                sdpData.sdp = enhanceSDP(sdpData.sdp, enhanceData);
+             //   sdpData.sdp = enhanceSDP(sdpData.sdp, enhanceData);
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(sdpData))
                 if(clbk)
                     clbk({streamid:id, peerConnection:peerConnection});
@@ -71,6 +71,7 @@ async function publishVideoToWowza(id,stream,wssUrl,bitrate, clbk, err){
             }
         }
     }
+
     function gotIceCandidate(event) {
     }
     async function gotDescription(description) {
