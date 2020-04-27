@@ -329,7 +329,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                                             streamid: ret.streamid
                                         });
                                         socket.emit("getMeetingVideos");
-                                    }, 2500);
+                                    }, 3000);
 
 
                             } ,
