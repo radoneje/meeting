@@ -282,46 +282,51 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                     _this.constraints=dt.data;
                     videoItem.streamid=socket.id;
                     videoItem.elem=document.getElementById('video_'+videoItem.id);
-                    var stream = await  navigator.mediaDevices.getUserMedia(_this.constraints);
-                    videoItem.elem.srcObject=stream;
+                    try {
+                        var stream = await navigator.mediaDevices.getUserMedia(_this.constraints);
+                        videoItem.elem.srcObject = stream;
 
-                        setTimeout(async ()=>{
-                            videoItem.tracks=stream.getTracks();
-                            var newStream= new MediaStream();
-                            videoItem.tracks.forEach(t=>{if(t.kind=="audio")newStream.addTrack(t)})
-                            var videoTrack=videoItem.tracks.filter(t=>t.kind=="video")[0]
-                            videoItem.stream=newStream;
+                        setTimeout(async () => {
+                            videoItem.tracks = stream.getTracks();
+                            var newStream = new MediaStream();
+                            videoItem.tracks.forEach(t => {
+                                if (t.kind == "audio") newStream.addTrack(t)
+                            })
+                            var videoTrack = videoItem.tracks.filter(t => t.kind == "video")[0]
+                            videoItem.stream = newStream;
 
-                            videoItem.audioElem=document.getElementById('meetVideoLevel'+videoItem.id)
-                            videoItem.analiser=await createAudioAnaliser(newStream, (val)=>{
-                               // console.log(val, parseFloat((val/100)*100));
-                                videoItem.audioElem.style.height=parseFloat((val/100)*100)+"%"
+                            videoItem.audioElem = document.getElementById('meetVideoLevel' + videoItem.id)
+                            videoItem.analiser = await createAudioAnaliser(newStream, (val) => {
+                                // console.log(val, parseFloat((val/100)*100));
+                                videoItem.audioElem.style.height = parseFloat((val / 100) * 100) + "%"
                             })
 
                             var canvas = document.createElement("canvas");
-                            canvas.width=16*30;
-                            canvas.height=9*30;
-                           /* canvas.style.position="fixed"
-                            canvas.style.top="0"
-                            canvas.style.zIndex="10000"
-                            document.body.appendChild(canvas)*/
+                            canvas.width = 16 * 30;
+                            canvas.height = 9 * 30;
+                            /* canvas.style.position="fixed"
+                             canvas.style.top="0"
+                             canvas.style.zIndex="10000"
+                             document.body.appendChild(canvas)*/
 
                             var context = canvas.getContext('2d');
-                            var imgElem=document.createElement("img")
-                            imgElem.src="/images/camera.svg"
+                            var imgElem = document.createElement("img")
+                            imgElem.src = "/images/camera.svg"
                             //document.body.appendChild(imgElem)
-                            draw(videoItem.elem,context, videoTrack, imgElem )
-                            var canvasStream=await canvas.captureStream(30)
-                            var canvasTracks=canvasStream.getTracks()
+                            draw(videoItem.elem, context, videoTrack, imgElem)
+                            var canvasStream = await canvas.captureStream(30)
+                            var canvasTracks = canvasStream.getTracks()
 
-                            canvasTracks.forEach(t=>{if(t.kind=="video")newStream.addTrack(t)})
+                            canvasTracks.forEach(t => {
+                                if (t.kind == "video") newStream.addTrack(t)
+                            })
 
 
-                            publishVideoToWowza(videoItem.streamid,videoItem.stream,WowzaCfg.data, BitrateCfg.data,
-                                (ret)=>{
-                             //   console.log("my Stream Published", ret)
-                                    videoItem.peerConnection=ret.peerConnection;
-                                    setTimeout(()=> {
+                            publishVideoToWowza(videoItem.streamid, videoItem.stream, WowzaCfg.data, BitrateCfg.data,
+                                (ret) => {
+                                    //   console.log("my Stream Published", ret)
+                                    videoItem.peerConnection = ret.peerConnection;
+                                    setTimeout(() => {
                                         socket.emit("newStream", {
                                             user: user,
                                             isDesktop: false,
@@ -332,9 +337,17 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                                     }, 3000);
 
 
-                            } ,
-                                (err)=>{console.warn("wowza publish err", err)})
+                                },
+                                (err) => {
+                                    console.warn("wowza publish err", err)
+                                })
                         }, 100)
+                    }
+                    catch (e) {
+                        console.log("no local video allowed");
+                    }
+
+
                 //    }
                     socket.on('newStream', async(data) =>{
                         console.log('newStream',data.streamid )
