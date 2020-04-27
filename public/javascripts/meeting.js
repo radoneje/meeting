@@ -282,9 +282,15 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                     _this.constraints=dt.data;
                     videoItem.streamid=socket.id;
                     videoItem.elem=document.getElementById('video_'+videoItem.id);
+
+                    setTimeout(()=>{
+                        socket.emit("getMeetingVideos");
+                    }, 1000);
+
                     try {
                         var stream = await navigator.mediaDevices.getUserMedia(_this.constraints);
                         videoItem.elem.srcObject = stream;
+
 
                         setTimeout(async () => {
                             videoItem.tracks = stream.getTracks();
@@ -333,7 +339,7 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                                             meetid: meetRoomid,
                                             streamid: ret.streamid
                                         });
-                                        socket.emit("getMeetingVideos");
+
                                     }, 3000);
 
 
@@ -341,13 +347,11 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                                 (err) => {
                                     console.warn("wowza publish err", err)
                                 })
-                        }, 100)
+                        }, 2000)
                     }
                     catch (e) {
                         console.log("no local video allowed");
-                        setTimeout(()=>{
-                            socket.emit("getMeetingVideos");
-                        }, 1000);
+
 
                     }
 
