@@ -345,7 +345,10 @@ var dt=await axios.get('/rest/api/info/'+eventid+"/0")
                     }
                     catch (e) {
                         console.log("no local video allowed");
-                        socket.emit("getMeetingVideos");
+                        setTimeout(()=>{
+                            socket.emit("getMeetingVideos");
+                        }, 1000);
+
                     }
 
 
