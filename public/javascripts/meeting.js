@@ -461,6 +461,7 @@ window.onload=async ()=> {
 
                     //    }
                     socket.on('newLangCh', async (data) => {
+                        console.log("newLangCh receive");
                         if (_this.langCh.length == 0) {
                             _this.langCh.push({lang: {title: "original", id: 0}, isActive: true})
                         }
