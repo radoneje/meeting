@@ -388,7 +388,7 @@ window.onload=async ()=> {
 
                     setTimeout(() => {
                         socket.emit("getMeetingVideos");
-                    }, 1000);
+                    }, 3000);
 
                     try {
                         var stream = await navigator.mediaDevices.getUserMedia(_this.constraints);
