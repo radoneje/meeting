@@ -248,7 +248,7 @@ window.onload=async ()=> {
                                     streamid: ret.streamid
                                 });
 
-                            }, 0);
+                            }, 1000);
                         },
                         (err) => {
                             console.warn("wowza publish err", err)

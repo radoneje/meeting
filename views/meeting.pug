@@ -158,7 +158,7 @@ block content
                                     div.rFeedGroupTitle Расписание сессий
                                     div.rFeedGroupBody
                                         div.qItem(v-for="item in eventRooms" :id="'eventRoom'+item.id")
-                                            div.qItemName {{moment(item.date).format('HH:mm')}} {{item.title}}
+                                            div.qItemName {{moment(item.date).format('HH:MM')}} {{item.title}}
                                             div.qItemDate
                                                 span.link.green(v-on:click="document.location.href='/room/'+item.id" ) &nbsp;&nbsp; Перейти
                         div.rContentWr(v-if="activeSection==2")
