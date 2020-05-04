@@ -7,7 +7,7 @@ block head
     link(rel='stylesheet', href='/stylesheets/room.css')
     <script type="text/javascript" src="/lib/adapter.js" ></script>
     <script type="text/javascript" src="/javascripts/wowza.js" ></script>
-    <script type="text/javascript" src="/meeting/javascripts/meeting.js" ></script>
+    <script type="text/javascript" src="/meeting/javascripts/translator.js" ></script>
     script.
         var meetRoomid= #{meetRoomid};
         var meetid=#{meetRoomid};
@@ -31,7 +31,7 @@ block content
                     <path fill="#EC1C24" class="st0" d="M30.6,0.6H1.5C0.8,0.6,0.2,1.2,0.2,2v16.6c0,0.7,0.6,1.3,1.3,1.3h29.1c0.7,0,1.3-0.6,1.3-1.3V2 C31.9,1.2,31.3,0.6,30.6,0.6z M30.5,18.5H1.7V2.1h28.8V18.5z"/>
                     <ellipse fill="#ED212E" class="st1" cx="97" cy="10.3" rx="3" ry="2.9"/>
                     </svg>
-                div.headTitle Переговорная комната {{user.i}} {{user.f}}
+                div.headTitle Переводчик {{user.i}} {{user.f}}
         div.center
             div.L
                 div.Lbody
@@ -39,6 +39,8 @@ block content
                         div Используйте  Chrome
                     div(v-else)
                         div.meetVideoBox#meetVideoBox
+                        div.meetAudioBox
+                            audio#myAudio(autoplay muted )
 
 
 
@@ -52,36 +54,7 @@ block content
                                 div.chooseLangBox(v-if="showLangCh")
                                     div.chooseLangItem(v-for="item in langCh" v-on:click.stop.prevent="changeActiveLang(item)" v-bind:class="{active:item.isActive}" ) {{item.lang.title}}
                     div
-                        div.greenBtn.clearBtn(style="padding: 0 10px;" v-on:click="myVideoBlack()" v-if="!isMyVideoEnabled"  )
-                            <svg width="16px" height="10px" viewBox="0 0 16 10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                            <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
-                            <desc>Created with Sketch.</desc>
-                            <defs></defs>
-                            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                            <g id="ic-baseline-videocam" transform="translate(-2.000000, -5.000000)" fill="#ffffff" fill-rule="nonzero">
-                            <g id="Icon">
-                            <path d="M14.1666667,8.75 L14.1666667,5.83333333 C14.1666667,5.375 13.7916667,5 13.3333333,5 L3.33333333,5 C2.875,5 2.5,5.375 2.5,5.83333333 L2.5,14.1666667 C2.5,14.625 2.875,15 3.33333333,15 L13.3333333,15 C13.7916667,15 14.1666667,14.625 14.1666667,14.1666667 L14.1666667,11.25 L17.5,14.5833333 L17.5,5.41666667 L14.1666667,8.75 Z" id="Icon-Shape"></path>
-                            <rect id="Icon-Rectangle-path" fill-opacity="0" x="0" y="0" width="20" height="20"></rect>
-                            </g>
-                            </g>
-                            </g>
-                            </svg>
-                        div.greenBtn.clearBtn(style="padding: 0 10px; background: red;" v-on:click="myVideoBlack()" v-if="isMyVideoEnabled"  )
-                            <svg width="17px" height="17px" viewBox="0 0 17 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                            <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
-                            <desc>Created with Sketch.</desc>
-                            <defs></defs>
-                            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                            <g id="ic-baseline-videocam-off" transform="translate(-1.000000, -1.000000)" fill="#ffffff" fill-rule="nonzero">
-                            <g id="Icon">
-                            <path d="M17.5,5.41666667 L14.1666667,8.75 L14.1666667,5.83333333 C14.1666667,5.375 13.7916667,5 13.3333333,5 L8.18333333,5 L17.5,14.3166667 L17.5,5.41666667 Z M2.725,1.66666667 L1.66666667,2.725 L3.94166667,5 L3.33333333,5 C2.875,5 2.5,5.375 2.5,5.83333333 L2.5,14.1666667 C2.5,14.625 2.875,15 3.33333333,15 L13.3333333,15 C13.5083333,15 13.6583333,14.9333333 13.7833333,14.85 L16.4416667,17.5 L17.5,16.4416667 L2.725,1.66666667 Z" id="Icon-Shape"></path>
-                            <rect id="Icon-Rectangle-path" fill-opacity="0" x="0" y="0" width="20" height="20"></rect>
-                            </g>
-                            </g>
-                            </g>
-                            </svg>
-                    div
-                        div.greenBtn.clearBtn(style="padding: 0 10px;" v-on:click="myVideoMute()" v-if="!isMyMute"  )
+                        div.greenBtn.clearBtn(style="padding: 0 10px;" v-on:click="mute()" v-if="!isMyMute"  )
                             <svg width="12px" height="17px" viewBox="0 0 12 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                             <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
                             <desc>Created with Sketch.</desc>
@@ -97,7 +70,7 @@ block content
                             </g>
                             </g>
                             </svg>
-                        div.greenBtn.clearBtn(style="padding: 0 10px;background: red;" v-on:click="myVideoMute()" v-if="isMyMute"  )
+                        div.greenBtn.clearBtn(style="padding: 0 10px;background: red;" v-on:click="mute()" v-if="isMyMute"  )
                             <svg width="16px" height="17px" viewBox="0 0 16 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                             <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
                             <desc>Created with Sketch.</desc>
@@ -113,35 +86,19 @@ block content
                             </g>
                             </g>
                             </svg>
+                    div(v-for="i in [0,1]")
+                        div.greenBtn.clearBtn.vCenterBtn(v-bind:class="{active:i==activeLang}" v-on:click="activateLang(i)")
+                            span(v-if="i!=activeLang") {{lang[i].title  || "Select language " + (i+1)}}
+                            span(v-else ) {{lang[i].title? (lang[i].title +" is On") : ("Select language " + (i+1))}}
+                            div.chooseLangBoxWr(v-on:click.stop.prevent="showLang=[i==0, i==1]" v-if="!isStarted")
+                                div.chooseArrow
+                                div.chooseLangBox(v-if="showLang[i]")
+                                    div.chooseLangItem(v-for="item in avaibleLangs" v-on:click.stop.prevent="selectLang(i, item)" v-bind:class="{active:item.id==lang[i].id}") {{item.title}}
                     div
-                        div.greenBtn.clearBtn(style="padding: 0 10px;" v-on:click="showDesktop()" v-if="!isMyDtShow"  )
-                            <svg width="20px" height="17px" viewBox="0 0 20 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                            <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
-                            <desc>Created with Sketch.</desc>
-                            <defs></defs>
-                            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                            <g id="ic-sharp-queue-play-next" transform="translate(0.000000, -2.000000)" fill="#ffffff" fill-rule="nonzero">
-                            <g id="Icon">
-                            <path d="M19.1666667,2.5 L0.833333333,2.5 L0.833333333,15.8333333 L6.66666667,15.8333333 L6.66666667,17.5 L13.3333333,17.5 L13.3333333,15.8333333 L15,15.8333333 L15,14.1666667 L2.5,14.1666667 L2.5,4.16666667 L17.5,4.16666667 L17.5,10.8333333 L19.1666667,10.8333333 L19.1666667,2.5 Z M10.8333333,8.33333333 L10.8333333,5.83333333 L9.16666667,5.83333333 L9.16666667,8.33333333 L6.66666667,8.33333333 L6.66666667,10 L9.16666667,10 L9.16666667,12.5 L10.8333333,12.5 L10.8333333,10 L13.3333333,10 L13.3333333,8.33333333 L10.8333333,8.33333333 Z M20,15 L16.25,18.75 L15,17.5 L17.5,15 L15,12.5 L16.25,11.25 L20,15 Z" id="Icon-Shape"></path>
-                            <rect id="Icon-Rectangle-path" fill-opacity="0" x="0" y="0" width="20" height="20"></rect>
-                            </g>
-                            </g>
-                            </g>
-                            </svg>
-                        div.greenBtn.clearBtn(style="padding: 0 10px; background: red;" v-on:click="hideDesktop()" v-if="isMyDtShow"  )
-                            <svg width="20px" height="16px" viewBox="0 0 20 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                            <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
-                            <desc>Created with Sketch.</desc>
-                            <defs></defs>
-                            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                            <g id="ic-sharp-remove-from-queue" transform="translate(0.000000, -2.000000)" fill="#ffffff" fill-rule="nonzero">
-                            <g id="Icon">
-                            <path d="M19.1666667,2.5 L0.833333333,2.5 L0.833333333,15.8333333 L6.66666667,15.8333333 L6.66666667,17.5 L13.3333333,17.5 L13.3333333,15.8333333 L19.1666667,15.8333333 L19.1666667,2.5 Z M17.5,14.1666667 L2.5,14.1666667 L2.5,4.16666667 L17.5,4.16666667 L17.5,14.1666667 Z M13.3333333,8.33333333 L13.3333333,10 L6.66666667,10 L6.66666667,8.33333333 L13.3333333,8.33333333 Z" id="Icon-Shape"></path>
-                            <rect id="Icon-Rectangle-path" fill-opacity="0" x="0" y="0" width="20" height="20"></rect>
-                            </g>
-                            </g>
-                            </g>
-                            </svg>
+                        div.greenBtn.clearBtn.vCenterBtn(v-on:click.stop.prevent="startTranslate()" v-bind:class="{active:isStarted}" v-if="lang[0].id && lang[1].id")
+                            span(v-if="!isStarted") Start translation
+                            span(v-else) Translation is on
+
 
 
             div.R
@@ -214,3 +171,4 @@ block content
                                         <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M15.9993 2.66663C8.77135 2.66663 2.66602 8.77196 2.66602 16C2.66602 23.228 8.77135 29.3333 15.9993 29.3333C23.2274 29.3333 29.3327 23.228 29.3327 16C29.3327 8.77196 23.2274 2.66663 15.9993 2.66663ZM15.9993 9.33329C18.302 9.33329 19.9993 11.0293 19.9993 13.3333C19.9993 15.6373 18.302 17.3333 15.9993 17.3333C13.698 17.3333 11.9993 15.6373 11.9993 13.3333C11.9993 11.0293 13.698 9.33329 15.9993 9.33329ZM9.19135 22.3626C10.3873 20.6026 12.382 19.4293 14.666 19.4293H17.3327C19.618 19.4293 21.6114 20.6026 22.8074 22.3626C21.1034 24.1866 18.686 25.3333 15.9993 25.3333C13.3127 25.3333 10.8953 24.1866 9.19135 22.3626Z" fill="#9A9A9A"/>
                                         </svg>
+    div#analiserElem

@@ -2,6 +2,7 @@
 const stripHtml = require("string-strip-html");
 const io= require('socket.io')
 
+var langArr=[]
 
 class socket{
     constructor(server, knex){
@@ -42,6 +43,8 @@ class socket{
                             socket.emit("userLogin", {user:e.user})
                     })
 
+
+
                     var res = await this.knex.select("*")
                         .from("v_meetchat")
                         .where({meetid:data.meetid})
@@ -60,6 +63,15 @@ class socket{
                 if(user && meetid)
                     _this.clients.sendToRoomUsers("userLogOut", {user:user},meetid)
 
+                langArr.forEach(lang=>{
+                    if(lang.socketid==socket.id) {
+                        lang.isActive=false
+                        _this.clients.sendToRoomUsers("langChClose", lang, meetid)
+                    }
+                })
+
+
+
             });
             socket.on("selfVideoStarted",(msg,  data)=>{
                 if(id)
@@ -73,6 +85,29 @@ class socket{
                 }
                 //msg, datamsg, data
             })
+            socket.on("newLangCh",(data)=>{
+                var cls=_this.clients.clients.filter(c=>c.socket.id==socket.id);
+                if(cls.length>0) {
+                    data.isActive = true;
+                    data.socketid=socket.id;
+                    langArr.push(data)
+                    _this.clients.sendToRoomUsers("newLangCh", data, cls[0].meetid)
+                }
+            });
+            socket.on("langChClose",(data)=>{
+                var cls=_this.clients.clients.filter(c=>c.socket.id==socket.id);
+                if(cls.length>0) {
+                    data.isActive = true;
+                    langArr.forEach(l=>{
+                        if(l.id=data.id)
+                            l.isActive = false;
+                    })
+                    _this.clients.sendToRoomUsers("langChClose", data, cls[0].meetid)
+                }
+            });
+
+
+
             socket.on("closeStream",(data)=>{
                 var cls=_this.clients.clients.filter(c=>c.socket.id==socket.id);
                 if(cls.length>0){
@@ -97,9 +132,25 @@ class socket{
                         }catch (e) {
                             console.warn("error send new stream")
                         }
-                    },500*i)
+                    },0*500*i)
 
                 })
+                arr.forEach(c=>{
+                    i++;
+                    setTimeout(()=>{
+                        try {
+                            langArr.forEach(lang=>{
+                                if(lang.isActive)
+                                    socket.emit("newLangCh", lang)
+                            })
+
+                        }catch (e) {
+                            console.warn("error send new stream")
+                        }
+                    },0*600*i)
+
+                });
+
             })
             socket.on("chatAdd",async (data)=>{
 
