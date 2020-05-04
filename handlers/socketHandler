@@ -132,7 +132,7 @@ class socket{
                         }catch (e) {
                             console.warn("error send new stream")
                         }
-                    },0*1000*i)
+                    },0*500*i)
 
                 })
                 arr.forEach(c=>{
