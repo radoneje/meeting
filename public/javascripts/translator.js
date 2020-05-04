@@ -266,7 +266,8 @@ window.onload=async ()=> {
             },
             switchAudioChannels: function () {
                 if (audio.length == 0)
-                    return
+                    return;
+                console.log("switchAudioChannels",this.activeLang )
                 for (i = 0; i <= 1; i++) {
                     audio[i].gainNode.gain.value = this.activeLang == i ? 1 : 0;
                     audio[i].origs.forEach(o => {
