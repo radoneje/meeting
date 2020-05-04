@@ -388,7 +388,8 @@ window.onload=async ()=> {
                     _this.mute();
                 }
                 if (e.code.indexOf("Arrow") == 0) {
-                    _this.activeLang = _this.activeLang == 0 ? 1 : 0;
+                    _this.activateLang(_this.activeLang == 0 ? 1 : 0)
+
                 }
             })
             var dt = await axios.get("/rest/api/translateLang");
