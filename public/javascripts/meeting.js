@@ -387,6 +387,7 @@ window.onload=async ()=> {
                     videoItem.elem = document.getElementById('video_' + videoItem.id);
 
                     setTimeout(() => {
+                        console.log("getMeetingVideos send");
                         socket.emit("getMeetingVideos");
                     }, 3000);
 
