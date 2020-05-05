@@ -20,7 +20,7 @@ router.get('/translator/:eventid/:meetingId', async(req, res, next)=> {
 
     var curruser=await req.knex.select("*").from("t_eventusers").where({isDeleted:false, id:req.params.meetingId})
     if(curruser.length<1)
-        return res.redirect("/login/"+req.params.eventid+"?redirect="+encodeURI('/meeting/'+req.params.eventid+"/"+req.params.meetingId))
+        return res.redirect("/login/"+req.params.eventid+"?redirect="+encodeURI('/meeting/translator/'+req.params.eventid+"/"+req.params.meetingId))
     // req.session["user"+user.eventid]  =  curruser[0]
 
     // if(!req.session["user"+user.eventid])
@@ -42,7 +42,7 @@ router.get('/external/:eventid/:meetingId', async(req, res, next)=> {
 
     var curruser=await req.knex.select("*").from("t_eventusers").where({isDeleted:false, id:req.params.meetingId})
     if(curruser.length<1)
-        return res.redirect("/login/"+req.params.eventid+"?redirect="+encodeURI('/meeting/'+req.params.eventid+"/"+req.params.meetingId))
+        return res.redirect("/login/"+req.params.eventid+"?redirect="+encodeURI('/meeting/external/'+req.params.eventid+"/"+req.params.meetingId))
     // req.session["user"+user.eventid]  =  curruser[0]
 
     // if(!req.session["user"+user.eventid])
