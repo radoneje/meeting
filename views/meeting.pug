@@ -7,6 +7,7 @@ block head
     link(rel='stylesheet', href='/stylesheets/room.css')
     <script type="text/javascript" src="/lib/adapter.js" ></script>
     <script type="text/javascript" src="/javascripts/wowza.js" ></script>
+    <script type="text/javascript" src="/meeting/javascripts/sharedElems.js" ></script>
     <script type="text/javascript" src="/meeting/javascripts/meeting.js" ></script>
     script.
         var meetRoomid= #{meetRoomid};
@@ -145,72 +146,4 @@ block content
 
 
             div.R
-                div.Rwr
-                    div.rContent
-                        div.rHead#rHead
-                            div.rHeadItem(v-for="item in sect" v-bind:class="{active:item.isActive}" v-on:click="sectActive(item)")
-                                div.rHeadItemLogo
-                                    img(v-bind:src="item.isActive?item.logoactive:item.logo")
-                                div {{item.title}}
-                        div.rContentWr(v-if="activeSection==0")
-                            div.rBody(id="feedBox" )
-                                div.rFeedGroup
-                                    div.rFeedGroupTitle Расписание сессий
-                                    div.rFeedGroupBody
-                                        div.qItem(v-for="item in eventRooms" :id="'eventRoom'+item.id")
-                                            div.qItemName {{moment(item.date).format('HH:MM')}} {{item.title}}
-                                            div.qItemDate
-                                                span.link.green(v-on:click="document.location.href='/room/'+item.id" ) &nbsp;&nbsp; Перейти
-                        div.rContentWr(v-if="activeSection==2")
-                            div.rBody(id="chatBox" )
-                                div.qItem(v-for="item in chat" v-bind:class="{my:(item.userid==user.id)}")
-                                    div.qItemSmi  {{item.smi}}
-                                    div.qItemName {{item.i}}&nbsp;{{item.f}}
-                                    div.qItemText(v-html="item.text")
-                                    div(style="text-align:center")
-                                        video.qItemVideo(v-bind:src="'/files/'+item.video" v-if="item.video" controls)
-                                    div.qItemPhoto(v-on:click="window.open('/files/'+item.photo)" v-bind:style="{backgroundImage:'url(/files/'+item.photo+')'}" v-if="item.photo" controls)
-                                    div.qItemDate {{moment(item.date).format("HH:MM")}}
-                            div.rFooter
-                                div.fileLoadProgress
-                                div.askWr
-                                    <svg v-on:click="chatFileClick()" style="cursor:pointer" width="14px" height="17px" viewBox="0 0 14 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
-                                    <desc>Created with Sketch.</desc>
-                                    <defs></defs>
-                                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                    <g id="Mobile" transform="translate(-99.000000, -201.000000)" fill="#9A9A9A" fill-rule="nonzero">
-                                    <g id="ic-sharp-file-upload" transform="translate(94.000000, 198.000000)">
-                                    <g id="Icon">
-                                    <path d="M9,16 L15,16 L15,10 L19,10 L12,3 L5,10 L9,10 L9,16 Z M5,18 L19,18 L19,20 L5,20 L5,18 Z" id="Icon-Shape"></path>
-                                    <rect id="Icon-Rectangle-path" fill-opacity="0" x="0" y="0" width="24" height="24"></rect>
-                                    </g>
-                                    </g>
-                                    </g>
-                                    </g>
-                                    </svg>
-                                    input.ask(v-on:paste="meetchatTextOnPaste($event)" placeholder="Напишите Ваше сообщение" id="chatText" v-model="chatText" v-on:keypress="meetchattextChange($event)")
-                                    <svg class="svgSendBtn" v-on:click="meetChattextSend()" width="15px" height="15px" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                        <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
-                                        <desc>Created with Sketch.</desc>
-                                        <defs></defs>
-                                        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                        <g id="Desktop-HD" transform="translate(-712.000000, -505.000000)" fill-rule="nonzero">
-                                        <g id="ic-baseline-call-made" transform="translate(708.000000, 500.000000)">
-                                        <g id="Icon">
-                                        <polygon id="Icon-Shape" fill="#9A9A9A" points="9 5 9 7 15.59 7 4 18.59 5.41 20 17 8.41 17 15 19 15 19 5"></polygon>
-                                        <rect id="Icon-Rectangle-path" fill-opacity="0" fill="#000000" x="0" y="0" width="24" height="24"></rect>
-                                        </g>
-                                        </g>
-                                        </g>
-                                        </g>
-                                    </svg>
-                        div.rContentWr(v-if="activeSection==3")
-                            div.rBody(id="userBox" )
-                                div.qItem.userItem(v-for="item in users" v-bind:class="{active:(item.isActive)}")
-                                    div.qItemSmi  {{item.title}}
-                                    div.qItemName {{item.i}}&nbsp;{{item.f}}
-                                    div.userItemAvatar
-                                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M15.9993 2.66663C8.77135 2.66663 2.66602 8.77196 2.66602 16C2.66602 23.228 8.77135 29.3333 15.9993 29.3333C23.2274 29.3333 29.3327 23.228 29.3327 16C29.3327 8.77196 23.2274 2.66663 15.9993 2.66663ZM15.9993 9.33329C18.302 9.33329 19.9993 11.0293 19.9993 13.3333C19.9993 15.6373 18.302 17.3333 15.9993 17.3333C13.698 17.3333 11.9993 15.6373 11.9993 13.3333C11.9993 11.0293 13.698 9.33329 15.9993 9.33329ZM9.19135 22.3626C10.3873 20.6026 12.382 19.4293 14.666 19.4293H17.3327C19.618 19.4293 21.6114 20.6026 22.8074 22.3626C21.1034 24.1866 18.686 25.3333 15.9993 25.3333C13.3127 25.3333 10.8953 24.1866 9.19135 22.3626Z" fill="#9A9A9A"/>
-                                        </svg>
+                include elements/rPanel

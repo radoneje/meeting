@@ -18,14 +18,9 @@ window.onload=async ()=> {
             constraints: null,
             activeSection: 2,
             eventRooms: [],
-            noWebrtc: false,
-            videos: [],
             firstConnect: true,
             user: user,
-            isMyDtShow: false,
-            isMyMute: false,
-            isMyVideoEnabled: false,
-            myTracks: [],
+            noWebrtc: false,
             eventRooms: [],
             chat: [],
             chatText: '',
@@ -33,10 +28,11 @@ window.onload=async ()=> {
             avaibleLangs: [],
             lang: [{}, {}],
             showLang: [false, false],
-            isStarted: false,
-            activeLang: 0,
+
             langCh: [],
             showLangCh: false,
+            devError:null,
+            inputDevices:[]
         },
         methods: {
             meetchatTextOnPaste: meetchatTextOnPaste,
@@ -83,15 +79,11 @@ window.onload=async ()=> {
                     this.showLang = [i == 0, i == 1]
                 }
             },
-            startTranslate: async function () {
+            startTranslate_old: async function () {
                 var _this = this;
                 if (this.isStarted) {
                     audio.forEach(a => {
                         socket.emit("langChClose", {id: a.id});
-                        if (a.peerConnection) {
-                            a.peerConnection.close();
-                            a.peerConnection = null;
-                        }
                     })
                     return this.isStarted = false;
                 }
@@ -245,6 +237,63 @@ window.onload=async ()=> {
                     }
                     arrAudio = arrAudio.filter(r => r.id != id);
                 }
+            },
+
+            showLangDialog:function (item) {
+
+                this.inputDevices.forEach(d=>{
+                    if(d.id==item.id){
+                        d.showLang=true;
+                    }
+                });
+                this.inputDevices=this.inputDevices.filter(()=>{return true})
+            },
+            selectLang(lang, item){
+                this.inputDevices.forEach(d=>{
+                    if(d.id==item.id){
+                        if(!d.isStarted)
+                            d.lang=lang;
+                            d.showLang=false;
+                    }
+                });
+                this.inputDevices=this.inputDevices.filter(()=>{return true})
+            },
+            startTranslate(item){
+                var _this=this;
+                this.inputDevices.forEach(async d=>{
+                    if(d.id==item.id){
+                        if(d.isStarted)
+                        {
+                            d.isStarted=false
+                            if(d.peerConnection)
+                            {
+                                d.peerConnection.close();
+                                d.peerConnection = null;
+                            }
+                            socket.emit("langChClose", {id: d.id});
+                            _this.inputDevices=this.inputDevices.filter(()=>{return true})
+                        }
+                        else{
+                            var ret=await publishVideoToWowzaAsync(d.id, d.stream, WowzaCfg.data, BitrateCfg.data);
+                            d.isStarted=true;
+                            d.peerConnection=ret.peerConnection;
+                            socket.emit("newLangCh", {lang: item.lang, id: d.id});
+                            console.log("start Transl", d.isStarted)
+                            _this.inputDevices=this.inputDevices.filter(()=>{return true})
+                        }
+                    }
+                });
+
+            },
+            soloAudio:function (item) {
+
+                this.inputDevices.forEach(d=>{
+                    if(d.id==item.id){
+                       d.playerMuted=!d.playerMuted;
+                        d.elem.muted=d.playerMuted;
+                    }
+                });
+                this.inputDevices=this.inputDevices.filter(()=>{return true})
             }
 
         },
@@ -260,21 +309,7 @@ window.onload=async ()=> {
         mounted: async function () {
             var _this = this;
             document.getElementById("app").style.opacity = 1;
-            document.addEventListener("keydown", (e) => {
-                if (e.code.indexOf("Enter") == 0) {
-                    if (_this.isStarted)
-                        _this.stop();
-                    else
-                        _this.startTranslate();
-                }
-                if (e.code.indexOf("Space") == 0) {
-                    _this.mute();
-                }
-                if (e.code.indexOf("Arrow") == 0) {
-                    _this.activateLang(_this.activeLang == 0 ? 1 : 0)
 
-                }
-            })
             var dt = await axios.get("/rest/api/translateLang");
             this.avaibleLangs = dt.data.languages;
 
@@ -308,174 +343,63 @@ window.onload=async ()=> {
                     _this.firstConnect = false;
 
                     socket.emit("hello", {userid: user.id, meetid: meetRoomid})
+                    try {
+                        var mediaDevices = await navigator.mediaDevices.enumerateDevices();
+                        mediaDevices.forEach(async device=>{
+                            if(device.kind=="audioinput") {
+                                try {
+                                    console.log(device)
+                                    device.id =   ( await axios.get("/rest/api/guid")).data;
+                                    device.isStarted = false;
+                                    device.error = false;
+                                    device.lang = {};
+                                    device.showLang = false;
+                                    device.playerMuted=true;
+                                    _this.inputDevices.push(device)
+                                    console.log("device", device)
+                                    var stream = await navigator.mediaDevices.getUserMedia({audio: {deviceId: device.id}})
+                                    device.stream = stream;
 
+                                    device.elem=document.getElementById("audioElem" + device.id);
+                                    device.elem.muted=true;
+                                    device.elem.srcObject=stream;
+                                    await createAudioAnaliser(stream, (val) => {
+                                        var analiserElem = document.getElementById("analiserElem" + device.id)
 
-                    var stream = await navigator.mediaDevices.getUserMedia({audio: true});
+                                        analiserElem.style.width = parseFloat((val / 100) * 100) + "%"
+                                    })
+                                }
+                                catch (e) {
+                                    console.warn("error", e)
+                                    device.label+=" ERROR:"+e
+                                }
+
+                            }
+                        })
+
+                    }
+                    catch (e) {
+                        _this.devError="ошибка инициализации аудио устройств " +e
+                    }
+
+                   /* var stream = await navigator.mediaDevices.getUserMedia({audio: true});
 
                     micTracks = stream.getAudioTracks();
                     micStream = new MediaStream();
                     micTracks.forEach(t => {
                         micStream.addTrack(t);
-                    })
+                    })*/
 
 
                     //  document.getElementById("myAudio").srcObject = stream;
-                    var analiserElem = document.getElementById("analiserElem")
+                   /* var analiserElem = document.getElementById("analiserElem")
                     await createAudioAnaliser(micStream, (val) => {
                         // console.log(val, parseFloat((val/100)*100));
                         analiserElem.style.height = parseFloat((val / 100) * 100) + "%"
-                    })
+                    })*/
 
+                    initChatAndQ(socket, _this)
 
-                    setTimeout(() => {
-                        socket.emit("getMeetingVideos");
-                    }, 100);
-                    socket.on('newLangCh', async (data) => {
-                        if (_this.langCh.length == 0) {
-                            _this.langCh.push({lang: {title: "original", id: 0}, isActive: true})
-                        }
-                        var find = _this.langCh.filter(f => f.lang.id == data.lang.id)
-                        if (find.length == 0) {
-                            data.isActive = false;
-                            _this.langCh.push(data);
-
-                        }
-                        console.log("newLangCh received", data)
-                    });
-                    socket.on('langChClose', async (data) => {
-
-                        var items = _this.langCh.filter(l => l.id == data.id)
-                        console.log('langChClose', items, data)
-                        if (items.length == 0)
-                            return;
-                        if (items[0].isActive) {
-                            _this.langCh[0].isActive = true;
-                            _this.activateLangCh({lang: {id: 0}});
-                        }
-                        console.log("lang close");
-                        _this.langCh = _this.langCh.filter(l => l.id != data.id);
-                    });
-
-                    socket.on('newStream', async (data) => {
-                        console.log('newStream', data.streamid)
-
-                        if (meetRoomid != data.meetid)
-                            return; //видео чужих комнат
-
-
-                        var ff = arrVideo.filter(v => v.streamid == data.streamid)
-                        if (ff.length > 0)
-                            return;//убираем повтор моего видео
-
-
-                        var receiverItem = {
-                            id: data.streamid,
-                            isMyVideo: false,
-                            user: data.user,
-                            streamid: data.streamid
-                        }
-                        arrVideo.push(receiverItem)
-                        var video = await createVideo(data.streamid, false, data.user);
-                        videoLayout();
-                        setTimeout(async () => {
-                            receiverItem.elem = document.getElementById('video_' + receiverItem.id);
-                            getVideoFromWowza(receiverItem, WowzaCfg.data, BitrateCfg.data,
-                                async (ret) => {
-
-                                    console.log('getVideoFromWowza', WowzaCfg.data)
-                                    _this.addOriginalToAudio(receiverItem.srcObject, receiverItem.streamid);
-
-                                    receiverItem.peerConnection = ret.peerConnection;
-                                    receiverItem.peerConnection.onconnectionstatechange = (event) => {
-                                        var cs = receiverItem.peerConnection.connectionState
-                                        console.log("cs", receiverItem.peerConnection.connectionState)
-                                        if (cs == "disconnected" || cs == "failed" || cs == "closed") {
-                                            if (receiverItem.peerConnection) {
-                                                receiverItem.peerConnection.close();
-                                                receiverItem.peerConnection = null;
-                                            }
-                                            removeVideo(receiverItem.streamid)
-                                            arrVideo = arrVideo.filter(r => r.streamid != receiverItem.streamid);
-                                            videoLayout();
-                                        }
-
-                                    }
-                                },
-                                (data) => {
-                                    console.warn("receiver err")
-                                })
-                        }, 100);
-
-
-                    })
-
-                    socket.on('closeStream', async (data) => {
-                        var v = arrVideo.filter(v => v.streamid == data.streamid)
-                        if (v.length == 0)
-                            return;
-                        var videoItem = v[0];
-
-                        console.warn("closeStream", data.streamid, videoItem.streamid, videoItem.id);
-                        if (videoItem.peerConnection) {
-                            videoItem.peerConnection.close();
-                            videoItem.peerConnection = null;
-                        }
-                        arrVideo = arrVideo.filter(r => r.streamid != videoItem.streamid);
-                        removeVideo(data.streamid)
-                        videoLayout();
-
-                    })
-                    socket.on('userDisconnnect', async (data) => {
-                        arrVideo = arrVideo.filter(v => v.streamid != data.streamData.streamid)
-                        removeVideo(data.streamData.streamid)
-                        videoLayout();
-                    })
-
-                    socket.on('userLogin', async (data) => {
-                        if (_this.users.filter(u => u.id == data.user.id).length == 0)
-                            _this.users.push(data.user)
-                        else
-                            _this.users.forEach(u => {
-                                if (u.id == data.user.id) u.isActive = true
-                            })
-
-                    })
-                    socket.on('userLogOut', async (data) => {
-                        _this.users.forEach(u => {
-                            if (u.id == data.user.id) u.isActive = false
-                        })
-                    })
-                    socket.on('chatAdd', async (data) => {
-                        console.log("chatAdd", data);
-
-                        data.forEach(dt => {
-                            if (_this.chat.filter(c => c.id == dt.id).length == 0)
-                                _this.chat.push(dt);
-                        })
-                        setTimeout(function () {
-                            var objDiv = document.getElementById("chatBox");
-                            objDiv.scrollTop = objDiv.scrollHeight;
-                        }, 0)
-
-                    })
-                    var el = document.getElementById("app")
-                    el.addEventListener('dragover', function (e) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        e.dataTransfer.dropEffect = 'copy';
-                    });
-                    el.addEventListener('drop', function (e) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        console.log("drop")
-                        var files = e.dataTransfer.files; // Array of all files
-                        for (var i = 0, file; file = files[i]; i++) {
-                            if (file.type.match(/image.*/)) {
-                                _this.activeSection = 2,
-                                    _this.uploafFilesToQ(file, "chat")
-                            }
-                        }
-                    });
 
 
                 }

@@ -117,7 +117,7 @@ class socket{
                 //msg, datamsg, data
             })
             socket.on("getMeetingVideos",(data)=>{
-
+                console.log(" getMeetingVideos")
                 var arr=this.clients.clients.filter(c=>{
                     return c.isActive && c.streamData.length>0});
                 var i=0;
@@ -135,21 +135,24 @@ class socket{
                     },3000*i )
 
                 })
-                arr.forEach(c=>{
-                    i++;
+                i=0;
                     setTimeout(()=>{
                         try {
+                            console.log("lang Arr",langArr )
                             langArr.forEach(lang=>{
-                                if(lang.isActive)
+                                if(lang.isActive) {
+                                    i++;
                                     socket.emit("newLangCh", lang)
+                                    console.log("emit newLangCh")
+                                }
                             })
 
                         }catch (e) {
                             console.warn("error send new stream")
                         }
-                    },0*600*i)
+                    },1000*i)
 
-                });
+
 
             })
             socket.on("chatAdd",async (data)=>{
