@@ -23,7 +23,7 @@ div.Rwr
                     div(style="text-align:center")
                         video.qItemVideo(v-bind:src="'/files/'+item.video" v-if="item.video" controls)
                     div.qItemPhoto(v-on:click="window.open('/files/'+item.photo)" v-bind:style="{backgroundImage:'url(/files/'+item.photo+')'}" v-if="item.photo" controls)
-                    div.qItemDate {{moment(item.date).format("HH:MM")}}
+                    div.qItemDate {{moment(item.date).format("HH:mm")}}
             div.rFooter
                 div.fileLoadProgress
                 div.askWr
