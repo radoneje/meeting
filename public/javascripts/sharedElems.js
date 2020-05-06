@@ -136,7 +136,7 @@ const sectActive= function (item) {
 }
 const initChatAndQ=function (socket, _this) {
     socket.on('userDisconnnect', async (data) => {
-        if(arrVideo) {
+        if(typeof( arrVideo)!='undefined') {
             arrVideo = arrVideo.filter(v => v.streamid != data.streamData.streamid)
             removeVideo(data.streamData.streamid)
             videoLayout();
