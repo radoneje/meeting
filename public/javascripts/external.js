@@ -344,40 +344,13 @@ window.onload=async ()=> {
 
                     socket.emit("hello", {userid: user.id, meetid: meetRoomid})
                     try {
+                        var devicesBuf=[];
                         var mediaDevices = await navigator.mediaDevices.enumerateDevices();
-                        for(device of mediaDevices){
-                       // mediaDevices.forEach(async device=>{
+                        mediaDevices=mediaDevices.filter(device=>device.kind=="audioinput");
+                        initAudioDevices(mediaDevices, _this,()=>{
+                            console.log("devices init complite");
+                        });
 
-                            if(device.kind=="audioinput") {
-                                try {
-                                    console.log(device)
-                                    device.id =   ( await axios.get("/rest/api/guid")).data;
-                                    device.isStarted = false;
-                                    device.error = false;
-                                    device.lang = {};
-                                    device.showLang = false;
-                                    device.playerMuted=true;
-                                    _this.inputDevices.push(device)
-                                    console.log("device", device)
-                                    var stream = await navigator.mediaDevices.getUserMedia({audio: {deviceId: device.id}})
-                                    device.stream = stream;
-
-                                    device.elem=document.getElementById("audioElem" + device.id);
-                                    device.elem.muted=true;
-                                    device.elem.srcObject=stream;
-                                    var analiserElem = document.getElementById("analiserElem" + device.id)
-                                    console.log("analiserElem", analiserElem, device.id);
-                                    await createAudioAnaliser(stream, (val) => {
-                                        analiserElem.style.width = parseFloat((val / 100) * 100) + "%"
-                                    })
-                                }
-                                catch (e) {
-                                    console.warn("error", e)
-                                    device.label+=" ERROR:"+e
-                                }
-
-                            }
-                        }
 
                     }
                     catch (e) {
@@ -600,6 +573,55 @@ window.onload=async ()=> {
         elem.style.left = (10 + left) + "px";
         elem.style.width = width + "px";
     }
+}
+function initAudioDevices(mediaDevices, _this, clbk){
+    if(mediaDevices.length==0)
+    {
+        clbk();
+        return;
+    }
+    var device=mediaDevices.shift();
+
+                axios.get("/rest/api/guid")
+                    .then((data=>{
+                        device.id =data
+                        device.isStarted = false;
+                        device.error = false;
+                        device.lang = {};
+                        device.showLang = false;
+                        device.playerMuted=true;
+                        _this.inputDevices.push(device)
+                        console.log("device", device)
+                        navigator.mediaDevices.getUserMedia({audio: {deviceId: device.id}})
+                            .then((stream)=>{
+                                var stream = await
+                                device.stream = stream;
+
+                                device.elem=document.getElementById("audioElem" + device.id);
+                                device.elem.muted=true;
+                                device.elem.srcObject=stream;
+                                var analiserElem = document.getElementById("analiserElem" + device.id)
+                                console.log("analiserElem", analiserElem, device.id);
+                                 createAudioAnaliser(stream, (val) => {analiserElem.style.width = parseFloat((val / 100) * 100) + "%"})
+                                     .then(()=>{
+                                         initAudioDevices(mediaDevices, _this, clbk)
+                                     })
+                                     .catch((e)=>{
+                                         console.warn("Error create analiser", e)
+                                         initAudioDevices(mediaDevices, _this, clbk)
+                                     })
+                            })
+                            .catch((e)=>{
+                                console.warn("Error getUserMedia ", e)
+                                initAudioDevices(mediaDevices, _this, clbk)
+                            })
+                    }))
+                    .catch((e)=>{
+                        console.warn("Error get guid ", e)
+                        initAudioDevices(mediaDevices, _this, clbk)
+                    })
+
+
 }
 
 
