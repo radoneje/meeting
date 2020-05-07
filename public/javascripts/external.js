@@ -576,9 +576,10 @@ window.onload=async ()=> {
                         device.elem = document.getElementById("audioElem" + device.id);
                         device.elem.muted = true;
                         device.elem.srcObject = stream;
-
+                        console.log("stream",stream)
                         //console.log("analiserElem", analiserElem, device.id);
                         createAudioAnaliser(stream, (val) => {
+
                             var analiserElem = document.getElementById("analiserElem" + device.id)
                             analiserElem.style.width = parseFloat((val / 100) * 100) + "%"
                          //   console.log(device.id,analiserElem.id, analiserElem.style.width);
