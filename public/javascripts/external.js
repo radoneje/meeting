@@ -571,8 +571,10 @@ window.onload=async ()=> {
                 device.playerMuted = true;
                 _this.inputDevices.push(device)
                 console.log("device", device)
-
-                navigator.mediaDevices.getUserMedia({audio: {deviceId: device.id?{ exact:device.id}: undefined}})
+                //audioSource2 ? {
+                //                         exact: audioSource2
+                //                     } : undefined
+                navigator.mediaDevices.getUserMedia({audio: {deviceId: device.deviceId?{ exact:device.deviceId}: undefined}})
                     .then((stream) => {
                         console.log("tracks",stream.getAudioTracks());
                         var track=stream.getAudioTracks()[0];
