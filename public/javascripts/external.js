@@ -574,7 +574,7 @@ window.onload=async ()=> {
                 //audioSource2 ? {
                 //                         exact: audioSource2
                 //                     } : undefined
-                navigator.mediaDevices.getUserMedia({audio: {deviceId: device.deviceId?{ exact:device.deviceId}: undefined}})
+                navigator.mediaDevices.getUserMedia({audio: {deviceId:{exact:device.deviceId}}})
                     .then((stream) => {
                         console.log("tracks",stream.getAudioTracks());
                         var track=stream.getAudioTracks()[0];
