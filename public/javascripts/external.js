@@ -552,6 +552,8 @@ window.onload=async ()=> {
     }
 
     function initAudioDevices(mediaDevices, _this, clbk) {
+        chrome.audio.getDevices((d)=>{console.log("d")})
+
         if (mediaDevices.length == 0) {
             clbk();
             return;
