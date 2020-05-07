@@ -594,7 +594,6 @@ function initAudioDevices(mediaDevices, _this, clbk){
                         console.log("device", device)
                         navigator.mediaDevices.getUserMedia({audio: {deviceId: device.id}})
                             .then((stream)=>{
-                                var stream = await
                                 device.stream = stream;
 
                                 device.elem=document.getElementById("audioElem" + device.id);
