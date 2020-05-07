@@ -552,7 +552,7 @@ window.onload=async ()=> {
     }
 
     function initAudioDevices(mediaDevices, _this, clbk) {
-        chrome.audio.getDevices((d)=>{console.log("d")})
+
 
         if (mediaDevices.length == 0) {
             clbk();
@@ -573,6 +573,7 @@ window.onload=async ()=> {
                 console.log("device", device)
                 navigator.mediaDevices.getUserMedia({audio: {deviceId: device.id}})
                     .then((stream) => {
+                        console.log("tracks",stream.getAudioTracks());
                         var track=stream.getAudioTracks()[0];
                         var clonned=new MediaStream();
                         clonned.addTrack(track.clone())
