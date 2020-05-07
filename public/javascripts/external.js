@@ -560,6 +560,7 @@ window.onload=async ()=> {
 
         axios.get("/rest/api/guid")
             .then((data => {
+                console.log("guid", data)
                 device.id = data
                 device.isStarted = false;
                 device.error = false;
