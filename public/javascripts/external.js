@@ -559,9 +559,9 @@ window.onload=async ()=> {
         var device = mediaDevices.shift();
 
         axios.get("/rest/api/guid")
-            .then((data => {
-                console.log("guid", data)
-                device.id = data
+            .then((ret => {
+                console.log("guid", ret.data)
+                device.id = ret.data
                 device.isStarted = false;
                 device.error = false;
                 device.lang = {};
