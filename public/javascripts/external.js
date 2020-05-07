@@ -31,13 +31,13 @@ window.onload=async ()=> {
 
             langCh: [],
             showLangCh: false,
-            devError:null,
-            inputDevices:[]
+            devError: null,
+            inputDevices: []
         },
         methods: {
             meetchatTextOnPaste: meetchatTextOnPaste,
             chatFileClick: chatFileClick,
-            uploafFilesToChat:uploafFilesToChat,
+            uploafFilesToChat: uploafFilesToChat,
             meetchattextChange: meetchattextChange,
             meetChattextSend: meetChattextSend,
             chatAddSmile: chatAddSmile,
@@ -142,10 +142,10 @@ window.onload=async ()=> {
             switchAudioChannels: function () {
                 if (audio.length == 0)
                     return;
-                console.log("switchAudioChannels",this.activeLang );
+                console.log("switchAudioChannels", this.activeLang);
 
                 for (i = 0; i <= 1; i++) {
-                    console.log("switch ch:"+i,this.activeLang, audio[i].gainNode.gain.value);
+                    console.log("switch ch:" + i, this.activeLang, audio[i].gainNode.gain.value);
                     audio[i].gainNode.gain.value = this.activeLang == i ? 1 : 0;
                     audio[i].origs.forEach(o => {
                         o.gainNode.gain.value = this.activeLang == i ? 0 : 1;
@@ -239,61 +239,68 @@ window.onload=async ()=> {
                 }
             },
 
-            showLangDialog:function (item) {
+            showLangDialog: function (item) {
 
-                this.inputDevices.forEach(d=>{
-                    if(d.id==item.id){
-                        d.showLang=true;
+                this.inputDevices.forEach(d => {
+                    if (d.id == item.id) {
+                        d.showLang = true;
                     }
                 });
-                this.inputDevices=this.inputDevices.filter(()=>{return true})
+                this.inputDevices = this.inputDevices.filter(() => {
+                    return true
+                })
             },
-            selectLang(lang, item){
-                this.inputDevices.forEach(d=>{
-                    if(d.id==item.id){
-                        if(!d.isStarted)
-                            d.lang=lang;
-                            d.showLang=false;
+            selectLang(lang, item) {
+                this.inputDevices.forEach(d => {
+                    if (d.id == item.id) {
+                        if (!d.isStarted)
+                            d.lang = lang;
+                        d.showLang = false;
                     }
                 });
-                this.inputDevices=this.inputDevices.filter(()=>{return true})
+                this.inputDevices = this.inputDevices.filter(() => {
+                    return true
+                })
             },
-            startTranslate(item){
-                var _this=this;
-                this.inputDevices.forEach(async d=>{
-                    if(d.id==item.id){
-                        if(d.isStarted)
-                        {
-                            d.isStarted=false
-                            if(d.peerConnection)
-                            {
+            startTranslate(item) {
+                var _this = this;
+                this.inputDevices.forEach(async d => {
+                    if (d.id == item.id) {
+                        if (d.isStarted) {
+                            d.isStarted = false
+                            if (d.peerConnection) {
                                 d.peerConnection.close();
                                 d.peerConnection = null;
                             }
                             socket.emit("langChClose", {id: d.id});
-                            _this.inputDevices=this.inputDevices.filter(()=>{return true})
-                        }
-                        else{
-                            var ret=await publishVideoToWowzaAsync(d.id, d.stream, WowzaCfg.data, BitrateCfg.data);
-                            d.isStarted=true;
-                            d.peerConnection=ret.peerConnection;
+                            _this.inputDevices = this.inputDevices.filter(() => {
+                                return true
+                            })
+                        } else {
+                            var ret = await publishVideoToWowzaAsync(d.id, d.stream, WowzaCfg.data, BitrateCfg.data);
+                            d.isStarted = true;
+                            d.peerConnection = ret.peerConnection;
                             socket.emit("newLangCh", {lang: item.lang, id: d.id});
                             console.log("start Transl", d.isStarted)
-                            _this.inputDevices=this.inputDevices.filter(()=>{return true})
+                            _this.inputDevices = this.inputDevices.filter(() => {
+                                return true
+                            })
                         }
                     }
                 });
 
             },
-            soloAudio:function (item) {
+            soloAudio: function (item) {
 
-                this.inputDevices.forEach(d=>{
-                    if(d.id==item.id){
-                       d.playerMuted=!d.playerMuted;
-                        d.elem.muted=d.playerMuted;
+                this.inputDevices.forEach(d => {
+                    if (d.id == item.id) {
+                        d.playerMuted = !d.playerMuted;
+                        d.elem.muted = d.playerMuted;
                     }
                 });
-                this.inputDevices=this.inputDevices.filter(()=>{return true})
+                this.inputDevices = this.inputDevices.filter(() => {
+                    return true
+                })
             }
 
         },
@@ -344,37 +351,35 @@ window.onload=async ()=> {
 
                     socket.emit("hello", {userid: user.id, meetid: meetRoomid})
                     try {
-                        var devicesBuf=[];
+                        var devicesBuf = [];
                         var mediaDevices = await navigator.mediaDevices.enumerateDevices();
-                        mediaDevices=mediaDevices.filter(device=>device.kind=="audioinput");
-                        initAudioDevices(mediaDevices, _this,()=>{
+                        mediaDevices = mediaDevices.filter(device => device.kind == "audioinput");
+                        initAudioDevices(mediaDevices, _this, () => {
                             console.log("devices init complite");
                         });
 
 
-                    }
-                    catch (e) {
-                        _this.devError="ошибка инициализации аудио устройств " +e
+                    } catch (e) {
+                        _this.devError = "ошибка инициализации аудио устройств " + e
                     }
 
-                   /* var stream = await navigator.mediaDevices.getUserMedia({audio: true});
+                    /* var stream = await navigator.mediaDevices.getUserMedia({audio: true});
 
-                    micTracks = stream.getAudioTracks();
-                    micStream = new MediaStream();
-                    micTracks.forEach(t => {
-                        micStream.addTrack(t);
-                    })*/
+                     micTracks = stream.getAudioTracks();
+                     micStream = new MediaStream();
+                     micTracks.forEach(t => {
+                         micStream.addTrack(t);
+                     })*/
 
 
                     //  document.getElementById("myAudio").srcObject = stream;
-                   /* var analiserElem = document.getElementById("analiserElem")
-                    await createAudioAnaliser(micStream, (val) => {
-                        // console.log(val, parseFloat((val/100)*100));
-                        analiserElem.style.height = parseFloat((val / 100) * 100) + "%"
-                    })*/
+                    /* var analiserElem = document.getElementById("analiserElem")
+                     await createAudioAnaliser(micStream, (val) => {
+                         // console.log(val, parseFloat((val/100)*100));
+                         analiserElem.style.height = parseFloat((val / 100) * 100) + "%"
+                     })*/
 
                     initChatAndQ(socket, _this)
-
 
 
                 }
@@ -573,54 +578,56 @@ window.onload=async ()=> {
         elem.style.left = (10 + left) + "px";
         elem.style.width = width + "px";
     }
-}
-function initAudioDevices(mediaDevices, _this, clbk){
-    if(mediaDevices.length==0)
-    {
-        clbk();
-        return;
-    }
-    var device=mediaDevices.shift();
 
-                axios.get("/rest/api/guid")
-                    .then((data=>{
-                        device.id =data
-                        device.isStarted = false;
-                        device.error = false;
-                        device.lang = {};
-                        device.showLang = false;
-                        device.playerMuted=true;
-                        _this.inputDevices.push(device)
-                        console.log("device", device)
-                        navigator.mediaDevices.getUserMedia({audio: {deviceId: device.id}})
-                            .then((stream)=>{
-                                device.stream = stream;
+    function initAudioDevices(mediaDevices, _this, clbk) {
+        if (mediaDevices.length == 0) {
+            clbk();
+            return;
+        }
+        var device = mediaDevices.shift();
 
-                                device.elem=document.getElementById("audioElem" + device.id);
-                                device.elem.muted=true;
-                                device.elem.srcObject=stream;
-                                var analiserElem = document.getElementById("analiserElem" + device.id)
-                                console.log("analiserElem", analiserElem, device.id);
-                                 createAudioAnaliser(stream, (val) => {analiserElem.style.width = parseFloat((val / 100) * 100) + "%"})
-                                     .then(()=>{
-                                         initAudioDevices(mediaDevices, _this, clbk)
-                                     })
-                                     .catch((e)=>{
-                                         console.warn("Error create analiser", e)
-                                         initAudioDevices(mediaDevices, _this, clbk)
-                                     })
-                            })
-                            .catch((e)=>{
-                                console.warn("Error getUserMedia ", e)
+        axios.get("/rest/api/guid")
+            .then((data => {
+                device.id = data
+                device.isStarted = false;
+                device.error = false;
+                device.lang = {};
+                device.showLang = false;
+                device.playerMuted = true;
+                _this.inputDevices.push(device)
+                console.log("device", device)
+                navigator.mediaDevices.getUserMedia({audio: {deviceId: device.id}})
+                    .then((stream) => {
+                        device.stream = stream;
+
+                        device.elem = document.getElementById("audioElem" + device.id);
+                        device.elem.muted = true;
+                        device.elem.srcObject = stream;
+                        var analiserElem = document.getElementById("analiserElem" + device.id)
+                        console.log("analiserElem", analiserElem, device.id);
+                        createAudioAnaliser(stream, (val) => {
+                            analiserElem.style.width = parseFloat((val / 100) * 100) + "%"
+                        })
+                            .then(() => {
                                 initAudioDevices(mediaDevices, _this, clbk)
                             })
-                    }))
-                    .catch((e)=>{
-                        console.warn("Error get guid ", e)
+                            .catch((e) => {
+                                console.warn("Error create analiser", e)
+                                initAudioDevices(mediaDevices, _this, clbk)
+                            })
+                    })
+                    .catch((e) => {
+                        console.warn("Error getUserMedia ", e)
                         initAudioDevices(mediaDevices, _this, clbk)
                     })
+            }))
+            .catch((e) => {
+                console.warn("Error get guid ", e)
+                initAudioDevices(mediaDevices, _this, clbk)
+            })
 
 
+    }
 }
 
 
