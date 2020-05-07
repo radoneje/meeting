@@ -571,14 +571,15 @@ window.onload=async ()=> {
                 console.log("device", device)
                 navigator.mediaDevices.getUserMedia({audio: {deviceId: device.id}})
                     .then((stream) => {
-                        device.stream = stream;
+                        var clonned=stream.clone();
+                        device.clonned = stream;
 
                         device.elem = document.getElementById("audioElem" + device.id);
                         device.elem.muted = true;
-                        device.elem.srcObject = stream;
-                        console.log("stream",device.label, stream.getAudioTracks()[0])
+                        device.elem.srcObject = clonned;
+                        console.log("stream",device.label, clonned.getAudioTracks()[0])
                         //console.log("analiserElem", analiserElem, device.id);
-                        createAudioAnaliser(stream, (val) => {
+                        createAudioAnaliser(clonned, (val) => {
 
                             var analiserElem = document.getElementById("analiserElem" + device.id)
                             analiserElem.style.width = parseFloat((val / 100) * 100) + "%"
