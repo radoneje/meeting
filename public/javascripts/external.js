@@ -576,7 +576,7 @@ window.onload=async ()=> {
                         device.elem = document.getElementById("audioElem" + device.id);
                         device.elem.muted = true;
                         device.elem.srcObject = stream;
-                        console.log("stream",stream)
+                        console.log("stream",stream, stream.getAudioTracks()[0])
                         //console.log("analiserElem", analiserElem, device.id);
                         createAudioAnaliser(stream, (val) => {
 
