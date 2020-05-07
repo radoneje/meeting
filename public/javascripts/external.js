@@ -579,7 +579,7 @@ window.onload=async ()=> {
                         console.log("analiserElem", analiserElem, device.id);
                         createAudioAnaliser(stream, (val) => {
                             analiserElem.style.width = parseFloat((val / 100) * 100) + "%"
-                            console.log(device.deviceId);
+                            console.log(device.id);
                         })
                             .then(() => {
                                 initAudioDevices(mediaDevices, _this, clbk)
