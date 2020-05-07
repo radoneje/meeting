@@ -345,7 +345,9 @@ window.onload=async ()=> {
                     socket.emit("hello", {userid: user.id, meetid: meetRoomid})
                     try {
                         var mediaDevices = await navigator.mediaDevices.enumerateDevices();
-                        mediaDevices.forEach(async device=>{
+                        for(device of mediaDevices){
+                       // mediaDevices.forEach(async device=>{
+
                             if(device.kind=="audioinput") {
                                 try {
                                     console.log(device)
@@ -375,7 +377,7 @@ window.onload=async ()=> {
                                 }
 
                             }
-                        })
+                        }
 
                     }
                     catch (e) {
