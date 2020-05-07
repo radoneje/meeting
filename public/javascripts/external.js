@@ -272,15 +272,15 @@ window.onload=async ()=> {
                                 d.peerConnection.close();
                                 d.peerConnection = null;
                             }
-                            socket.emit("langChClose", {id: d.id});
+                            socket.emit("langChClose", {id: d.streamId});
                             _this.inputDevices = this.inputDevices.filter(() => {
                                 return true
                             })
                         } else {
-                            var ret = await publishVideoToWowzaAsync(d.id, d.stream, WowzaCfg.data, BitrateCfg.data);
+                            var ret = await publishVideoToWowzaAsync(d.streamId, d.stream, WowzaCfg.data, BitrateCfg.data);
                             d.isStarted = true;
                             d.peerConnection = ret.peerConnection;
-                            socket.emit("newLangCh", {lang: item.lang, id: d.id});
+                            socket.emit("newLangCh", {lang: item.lang, id: d.streamId});
                             console.log("start Transl", d.isStarted)
                             _this.inputDevices = this.inputDevices.filter(() => {
                                 return true
@@ -301,6 +301,35 @@ window.onload=async ()=> {
                 this.inputDevices = this.inputDevices.filter(() => {
                     return true
                 })
+            },
+            enableDevice: function (item) {
+                item.enabled=true;
+                this.inputDevices = this.inputDevices.filter(() => {
+                    return true
+                })
+                setTimeout(async()=>{
+                    let constraints = {
+                        audio: {
+                            deviceId: item.deviceId ? {
+                                exact: item.deviceId
+                            } : undefined
+                        }
+                    };
+
+
+                    item.stream=await navigator.mediaDevices.getUserMedia(constraints);
+                    item.elem= document.getElementById("audioElem" + item.id);
+                    item.elem.muted=true;
+                    item.elem.srcObject=item.stream;
+
+                    new audioLevel(item.stream,  item.id);
+                  /*  createAudioAnaliser(item.stream,  item.id, (val, id) => {
+                        var analiserElem = document.getElementById("analiserElem" + id)
+                        analiserElem.style.width = parseFloat((val / 100) * 100) + "%"
+                        //   console.log(device.id,analiserElem.id, analiserElem.style.width);
+                    })*/
+
+                },0)
             }
 
         },
@@ -354,9 +383,25 @@ window.onload=async ()=> {
                         var devicesBuf = [];
                         var mediaDevices = await navigator.mediaDevices.enumerateDevices();
                         mediaDevices = mediaDevices.filter(device => device.kind == "audioinput");
-                        initAudioDevices(mediaDevices, _this, () => {
+                        mediaDevices.forEach(async d=>{
+                                d.id=d.deviceId,
+                                d.lang={},
+                                d.enabled=false,
+                                d.playerMuted=true,
+                                d.showLang=false,
+                                d.streamId= (await axios.get("/rest/api/guid")).data
+                                d.stream=null;
+                                d.elem=null;
+                            }
+
+                        );
+                        _this.inputDevices=mediaDevices;
+
+
+
+                       /* initAudioDevices(mediaDevices, _this, () => {
                             console.log("devices init complite");
-                        });
+                        });*/
 
 
                     } catch (e) {
@@ -613,7 +658,7 @@ window.onload=async ()=> {
 
 
     }
-    async function createAudioAnaliser(stream, clbk) {
+     function createAudioAnaliser(stream,id, clbk) {
         try {
             audioContext = new AudioContext();
             analyser = audioContext.createAnalyser();
@@ -634,13 +679,43 @@ window.onload=async ()=> {
                 }
                 var average = values / length;
                 //console.log(Math.round(average ));
-                clbk(average)
+               // clbk(average, id)
+                var analiserElem = document.getElementById("analiserElem" + id)
+                analiserElem.style.width = parseFloat((average / 100) * 100) + "%"
             }
 
             return audioContext;
         } catch (e) {
             return null
         }
+    }
+    class audioLevel{
+        constructor(stream,id){
+            this.audioContext = new AudioContext();
+            this.analyser = this.audioContext.createAnalyser();
+            this.microphone = this.audioContext.createMediaStreamSource(stream);
+            this.javascriptNode = this.audioContext.createScriptProcessor(2048, 1, 1);
+            this.analyser.smoothingTimeConstant = 0.8;
+            this.analyser.fftSize = 1024;
+            this.microphone.connect(this.analyser);
+            this.analyser.connect(this.javascriptNode);
+            this.javascriptNode.connect(this.audioContext.destination);
+            this.javascriptNode.onaudioprocess =  () =>{
+                var array = new Uint8Array(this.analyser.frequencyBinCount);
+                this.analyser.getByteFrequencyData(array);
+                var values = 0;
+                var length = array.length;
+                for (var i = 0; i < length; i++) {
+                    values += (array[i]);
+                }
+                var average = values / length;
+                //console.log(Math.round(average ));
+                // clbk(average, id)
+                var analiserElem = document.getElementById("analiserElem" + id)
+                analiserElem.style.width = parseFloat((average / 100) * 100) + "%"
+            }
+        }
+
     }
 }
 
