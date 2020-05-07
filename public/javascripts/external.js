@@ -571,7 +571,9 @@ window.onload=async ()=> {
                 console.log("device", device)
                 navigator.mediaDevices.getUserMedia({audio: {deviceId: device.id}})
                     .then((stream) => {
-                        var clonned=stream.clone();
+                        var track=stream.getAudioTracks()[0];
+                        var clonned=new MediaStream();
+                        clonned.addTrack(track.clone())
                         device.clonned = stream;
 
                         device.elem = document.getElementById("audioElem" + device.id);
