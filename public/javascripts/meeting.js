@@ -156,9 +156,14 @@ window.onload=async ()=> {
                     audio.autoplay = "autoplay";
                     //  audio.controls="controls";
                     document.body.appendChild(audio);
+
                     var ret = await getVideoFromWowzaAync(item.id, audio, WowzaCfg.data, BitrateCfg.data);
                     var audioItem = {id: item.id, elem: audio, peerConnection: ret.peerConnection}
                     arrAudio.push(audioItem)
+                    arrVideo.forEach(v => {
+                        if (!v.isMyVideo)
+                            v.muted = true;
+                    });
                     audioItem.peerConnection.onconnectionstatechange = (event) => {
                         var cs = audioItem.peerConnection.connectionState
                         console.log("cs", audioItem.peerConnection.connectionState)
