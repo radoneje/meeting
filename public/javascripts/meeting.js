@@ -304,7 +304,7 @@ window.onload=async ()=> {
                                         })
                                         console.log("silent off")
                                         silent=false;
-                                    }, 500)
+                                    }, 2000)
                                 }
                                 videoItem.audioElem.style.height = parseFloat((val / 100) * 100) + "%"
                             })
