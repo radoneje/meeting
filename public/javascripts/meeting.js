@@ -145,7 +145,7 @@ window.onload=async ()=> {
                     })
                     arrVideo.forEach(v => {
                         if (!v.isMyVideo)
-                            v.muted = false
+                            v.elem.muted = false
                     });
                 } else {
                     arrAudio.forEach(a => {
@@ -164,7 +164,7 @@ window.onload=async ()=> {
                     arrVideo.forEach(v => {
                         console.log("MUST ", v.elem)
                         v.elem.muted = true;
-                            v.elem.muted = true;
+
                     });
                     audioItem.peerConnection.onconnectionstatechange = (event) => {
                         var cs = audioItem.peerConnection.connectionState
