@@ -288,7 +288,7 @@ window.onload=async ()=> {
                             var silent=false;
                             videoItem.analiser = await createAudioAnaliser(newStream, (val) => {
                                 // console.log(val, parseFloat((val/100)*100));
-                                if(val>20) {
+                                if(val>10) {
                                     if(!silent) {
                                         silent=true;
                                         arrAudio.forEach(a => {
