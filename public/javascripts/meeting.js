@@ -292,7 +292,7 @@ window.onload=async ()=> {
                                     if(!silent) {
                                         silent=true;
                                         arrAudio.forEach(a => {
-                                            a.elem.volume = 0.1;
+                                            a.elem.volume = 0;
                                         })
                                         console.log("silent on")
                                     }
