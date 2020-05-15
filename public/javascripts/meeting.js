@@ -161,7 +161,6 @@ window.onload=async ()=> {
                     var audioItem = {id: item.id, elem: audio, peerConnection: ret.peerConnection}
                     arrAudio.push(audioItem)
                     arrVideo.forEach(v => {
-                        if (!v.isMyVideo)
                             v.muted = true;
                     });
                     audioItem.peerConnection.onconnectionstatechange = (event) => {
