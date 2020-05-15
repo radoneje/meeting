@@ -160,8 +160,11 @@ window.onload=async ()=> {
                     var ret = await getVideoFromWowzaAync(item.id, audio, WowzaCfg.data, BitrateCfg.data);
                     var audioItem = {id: item.id, elem: audio, peerConnection: ret.peerConnection}
                     arrAudio.push(audioItem)
+                    console.log("MUST MUTED")
                     arrVideo.forEach(v => {
-                            v.muted = true;
+                        console.log("MUST ", v.elem)
+                        v.elem.muted = true;
+                            v.elem.muted = true;
                     });
                     audioItem.peerConnection.onconnectionstatechange = (event) => {
                         var cs = audioItem.peerConnection.connectionState
