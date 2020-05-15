@@ -278,8 +278,27 @@ window.onload=async ()=> {
                             videoItem.stream = newStream;
 
                             videoItem.audioElem = document.getElementById('meetVideoLevel' + videoItem.id)
+                            var silentTimer=null;
+                            var silent=false;
                             videoItem.analiser = await createAudioAnaliser(newStream, (val) => {
                                 // console.log(val, parseFloat((val/100)*100));
+                                if(val>40) {
+                                    if(!silent) {
+                                        silent=true;
+                                        arrAudio.forEach(a => {
+                                            a.elem.volume = 0.3;
+                                        })
+                                        console.log("silent on")
+                                    }
+                                    if(silentTimer) clearTimeout(silentTimer);
+                                    silentTimer= setTimeout(()=>{
+                                        arrAudio.forEach(a => {
+                                            a.elem.volume=1;
+                                        })
+                                        console.log("silent off")
+                                        silent=false;
+                                    }, 500)
+                                }
                                 videoItem.audioElem.style.height = parseFloat((val / 100) * 100) + "%"
                             })
 
