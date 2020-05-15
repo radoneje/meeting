@@ -288,15 +288,16 @@ window.onload=async ()=> {
                             var silent=false;
                             videoItem.analiser = await createAudioAnaliser(newStream, (val) => {
                                 // console.log(val, parseFloat((val/100)*100));
-                                if(val>40) {
+                                if(val>20) {
                                     if(!silent) {
                                         silent=true;
                                         arrAudio.forEach(a => {
-                                            a.elem.volume = 0.3;
+                                            a.elem.volume = 0.1;
                                         })
                                         console.log("silent on")
                                     }
-                                    if(silentTimer) clearTimeout(silentTimer);
+                                    if(silentTimer)
+                                        clearTimeout(silentTimer);
                                     silentTimer= setTimeout(()=>{
                                         arrAudio.forEach(a => {
                                             a.elem.volume=1;
