@@ -15,6 +15,7 @@ var knex = require('knex')({
   connection:config.pgConnection
 });
 
+
 var meetingRouter = require('./routes/meeting');
 var apiRouter = require('./routes/meetingApi');
 
