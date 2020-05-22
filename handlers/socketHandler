@@ -126,14 +126,16 @@ class socket{
                 var arr=this.clients.clients.filter(c=>{
                     return c.isActive && c.streamData.length>0});
                 var i=0;
-                for(var i of arr)
+
+                for(var a of arr)
                 {
-                    console.log("arr i", i)
-                    console.log(arr[i])
-                    if(arr[i])
-                    for(var j of arr[i].streamData)
+                    i++;
+
+                    var j=0
+                    for(var b of a.streamData)
                     {
-                       await delay(()=>{socket.emit("newStream", arr[i].streamData[j])},1000 *(j+i));
+                        j++;
+                       await delay(()=>{socket.emit("newStream", b)},1000 *(j+i));
                     }
 
                 }
