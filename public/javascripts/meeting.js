@@ -330,7 +330,7 @@ window.onload=async ()=> {
                             })
                             console.log("my Stream before Published")
 
-                            publishVideoToWowza(videoItem.streamid, videoItem.stream, WowzaCfg.data, BitrateCfg.data,
+                            await publishVideoToWowza(videoItem.streamid, videoItem.stream, WowzaCfg.data, BitrateCfg.data,
                                 (ret) => {
                                        console.log("my Stream Published", ret)
                                     videoItem.peerConnection = ret.peerConnection;
