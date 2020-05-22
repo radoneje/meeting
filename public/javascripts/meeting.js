@@ -328,7 +328,7 @@ window.onload=async ()=> {
                             canvasTracks.forEach(t => {
                                 if (t.kind == "video") newStream.addTrack(t)
                             })
-
+                            console.log("my Stream before Published", ret)
 
                             publishVideoToWowza(videoItem.streamid, videoItem.stream, WowzaCfg.data, BitrateCfg.data,
                                 (ret) => {
