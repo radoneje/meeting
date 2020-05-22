@@ -117,7 +117,7 @@ class socket{
                 //msg, datamsg, data
             })
             socket.on("getMeetingVideos",(data)=>{
-                console.log(" getMeetingVideos")
+                console.log(" getMeetingVideos", this.clients.clients)
                 var arr=this.clients.clients.filter(c=>{
                     return c.isActive && c.streamData.length>0});
                 var i=0;
