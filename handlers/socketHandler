@@ -37,6 +37,11 @@ class socket{
 
                 id=_this.clients.add(client)
                 client.id=id;
+                if(_this.clients.clients.filter(c=>c.isActive).length>6)
+                {
+                    socket.emit("maxConnect");
+                    return ;
+                }
                 setTimeout(async ()=>{
                     _this.clients.clients.forEach(e=>{
                         if(e.isActive &&  meetid==data.meetid)

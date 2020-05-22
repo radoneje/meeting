@@ -29,6 +29,7 @@ window.onload=async ()=> {
             users: [],
             langCh: [],
             showLangCh: false,
+            maxConnect:false,
 
         },
         methods: {
@@ -367,6 +368,10 @@ window.onload=async ()=> {
                             data.isActive = false;
                             _this.langCh.push(data);
                         }
+                    });
+                    socket.on('maxConnect', async (data) => {
+                        _this.maxConnect=true;
+                        alert("Превышеночисло участников переговорной комнаты")
                     });
                     socket.on('langChClose', async (data) => {
 
