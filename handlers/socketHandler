@@ -128,7 +128,7 @@ class socket{
                 var i=0;
                 for(var i of arr)
                 {
-                    console.log("arr i")
+                    console.log("arr i", i)
                     console.log(arr[i])
                     if(arr[i])
                     for(var j of arr[i].streamData)
