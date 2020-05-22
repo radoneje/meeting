@@ -116,12 +116,29 @@ class socket{
                 }
                 //msg, datamsg, data
             })
-            socket.on("getMeetingVideos",(data)=>{
+            socket.on("getMeetingVideos", async (data)=>{
                 console.log(" getMeetingVideos", this.clients.clients)
                 var arr=this.clients.clients.filter(c=>{
                     return c.isActive && c.streamData.length>0});
                 var i=0;
-                arr.forEach(c=>{
+                for(var i of arr)
+                {
+                    for(var j of arr[i].streamData)
+                    {
+                       await delay(()=>{socket.emit("newStream", arr[i].streamData[j])},1000 *(j+i));
+                    }
+
+                }
+                async function delay(f,d){
+                    return new Promise((res,rej)=>{
+                        setTimeout(()=>{
+                            f();
+                            res();
+                        },d)
+                    })
+                }
+
+               /* arr.forEach(c=>{
                     i++;
                     setTimeout(()=>{
                         try {
@@ -134,7 +151,7 @@ class socket{
                         }
                     },3000*i )
 
-                })
+                })*/
                 i=0;
                     setTimeout(()=>{
                         try {
