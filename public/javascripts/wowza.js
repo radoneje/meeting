@@ -14,7 +14,7 @@ var peerConnectionConfig = {
 
 
 async function publishVideoToWowza(id,stream,wssUrl,bitrate, clbk, err){
-
+    console.log("publishVideoToWowza");
     var peerConnection=null;
     var wsConnection = null;
     console.log("wssUrl.url",wssUrl.url);
