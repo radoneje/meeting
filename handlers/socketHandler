@@ -128,6 +128,9 @@ class socket{
                 var i=0;
                 for(var i of arr)
                 {
+                    console.log("arr i")
+                    console.log(arr[i])
+                    if(arr[i])
                     for(var j of arr[i].streamData)
                     {
                        await delay(()=>{socket.emit("newStream", arr[i].streamData[j])},1000 *(j+i));
