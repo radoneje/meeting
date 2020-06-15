@@ -348,7 +348,6 @@ window.onload=async ()=> {
             document.getElementById("app").style.opacity = 1;
 
 
-
             audioOutputDevices = (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === 'audiooutput');
             console.log("audioOutputDevices", audioOutputDevices);
 
