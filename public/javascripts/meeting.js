@@ -448,7 +448,7 @@ window.onload=async ()=> {
                         setTimeout(async () => {
                             receiverItem.elem = document.getElementById('video_' + receiverItem.id);
                             try {
-                                if (audioActiveDevice)
+                                if (_this.audioActiveDevice)
                                     receiverItem.elem.setSinkId(_this.audioActiveDevice.deviceId)
                             }
                             catch (e) {
