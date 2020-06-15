@@ -50,8 +50,8 @@ block content
                             span {{audioActiveDevice.label}}
                             div.chooseLangBoxWr
                                 div.chooseArrow
-                                div.chooseLangBox(v-if="audioOutputDevicesShow")
-                                    div.chooseLangItem(v-for="item in audioOutputDevices" v-on:click.stop.prevent="changeActiveLang(item)" v-bind:class="{active:item.deviceId==audioActiveDevice.deviceId}" ) {{item.label}}
+                                div.chooseLangBox(v-if="audioOutputDevicesShow" style="width: 300px;")
+                                    div.chooseLangItem(v-for="item in audioOutputDevices" v-on:click.stop.prevent="changeActiveOutDevice(item)" v-bind:class="{active:item.deviceId==audioActiveDevice.deviceId}" ) {{item.label}}
 
                     div(v-if="langCh.length>0")
                         div.greenBtn.clearBtn.vCenterBtn(v-on:click.stop.prevent="showLangCh=true" )
