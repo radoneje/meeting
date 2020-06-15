@@ -48,7 +48,7 @@ router.get('/external/:eventid/:meetingId', async(req, res, next)=> {
 
 });
 
-router.get('/:eventid/:meetingId/?:novideo',  async (req, res, next) =>{
+router.get('/:eventid/:meetingId/',  async (req, res, next) =>{
     req.params.eventid=parseInt(req.params.eventid)
     if(!Number.isInteger(req.params.eventid))
         return res.send(404);
