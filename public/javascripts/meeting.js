@@ -32,6 +32,7 @@ window.onload=async ()=> {
             showLangCh: false,
             maxConnect: false,
             audioOutputDevices: [],
+            audioOutputDevicesShow:false,
             audioActiveDevice: null
 
         },
@@ -233,6 +234,7 @@ window.onload=async ()=> {
             try {
                 _this.audioOutputDevices = (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === 'audiooutput');
                 _this.audioActiveDevice = _this.audioOutputDevices.filter(device => device.deviceId === 'default')[0];
+                console.log()
             }
             catch (e) {
                 console.warn("no output aodio devices");
