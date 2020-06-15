@@ -34,7 +34,9 @@ window.onload=async ()=> {
             audioOutputDevices: [],
             audioOutputDevicesShow:false,
             audioActiveDevice: null,
-            novideo:novideo
+            novideo:novideo,
+            firstButton:false,
+            socket:null,
 
         },
         methods: {
@@ -45,6 +47,10 @@ window.onload=async ()=> {
             meetChattextSend: meetChattextSend,
             chatAddSmile: chatAddSmile,
             sectActive: sectActive,
+            firstButtonClick:function(){
+                this.firstButton=true;
+                this.socket.emit("getMeetingVideos");
+            },
             hideDesktop: function () {
                 var _this = this;
                 var v = arrVideo.filter(r => r.isMyVideo && r.isDesktop);
@@ -286,6 +292,7 @@ window.onload=async ()=> {
             serverUrl = document.location.protocol + "//" + myHostname;//+"/meeting/socket";
             console.log('Connecting to server:' + serverUrl, {path: '/meeting/socket'});
             socket = io(serverUrl, {path: '/meeting/socket'});
+            this.socket=socket;
             socket.on('connect', async () => {
                 console.log('connect success');
                 _this.emit = function (type, data,) {
@@ -303,11 +310,12 @@ window.onload=async ()=> {
                     if (!novideo) {
                         videoItem.streamid = socket.id;
                         videoItem.elem = document.getElementById('video_' + videoItem.id);
+
+                        setTimeout(() => {
+                            console.log("getMeetingVideos send");
+                            socket.emit("getMeetingVideos");
+                        }, 3000);
                     }
-                    setTimeout(() => {
-                        console.log("getMeetingVideos send");
-                        socket.emit("getMeetingVideos");
-                    }, 3000);
 
                     if (!novideo)
                     {
