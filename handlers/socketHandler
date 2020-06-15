@@ -83,6 +83,7 @@ class socket{
                        _this.clients.startVideo(id, socket.id)
             });
             socket.on("newStream",(data)=>{
+                console.log("newStream received")
                 var cls=_this.clients.clients.filter(c=>c.socket.id==socket.id);
                 if(cls.length>0){
                     cls[0].streamData.push(data);
@@ -122,7 +123,7 @@ class socket{
                 //msg, datamsg, data
             })
             socket.on("getMeetingVideos", async (data)=>{
-                console.log(" getMeetingVideos", this.clients.clients)
+              //  console.log(" getMeetingVideos", this.clients.clients)
                 var arr=this.clients.clients.filter(c=>{
                     return c.isActive && c.streamData.length>0});
                 var i=0;
