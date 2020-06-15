@@ -62,12 +62,12 @@ router.get('/:eventid/:meetingId/',  async (req, res, next) =>{
 
     var curruser=await req.knex.select("*").from("t_eventusers").where({isDeleted:false, id:req.params.meetingId})
     if(curruser.length<1)
-        return res.redirect("/login/"+req.params.eventid+"?redirect="+encodeURI('/meeting/'+req.params.eventid+"/"+req.params.meetingId+(req.params.novideo=="novideo"?"/novideo":"")))
+        return res.redirect("/login/"+req.params.eventid+"?redirect="+encodeURI('/meeting/'+req.params.eventid+"/"+req.params.meetingId+(req.query.novideo=="novideo"?"?novideo=novideo":"")))
    // req.session["user"+user.eventid]  =  curruser[0]
 
    // if(!req.session["user"+user.eventid])
     //    return res.redirect("/login/"+req.params.eventid+"?redirect="+encodeURI('/meeting/'+req.params.eventid+"/"+req.params.meetingId))
-    res.render('meeting', { title: 'ON.event Переговорная комната',eventid:req.params.eventid ,meetRoomid:req.params.meetingId, novideo:req.params.novideo=="novideo"?true:false});;//, user: req.session["user"+user.eventid]});
+    res.render('meeting', { title: 'ON.event Переговорная комната',eventid:req.params.eventid ,meetRoomid:req.params.meetingId, novideo:req.query.novideo=="novideo"?true:false});;//, user: req.session["user"+user.eventid]});
 
 })
 
