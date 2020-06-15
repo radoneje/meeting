@@ -11,6 +11,7 @@ window.onload=async ()=> {
     var micStream = null;
     var micTracks = [];
     var audio = [];
+    var audioOutputDevices=[];
     var app = new Vue({
         el: "#app",
         data: {
@@ -345,6 +346,11 @@ window.onload=async ()=> {
         mounted: async function () {
             var _this = this;
             document.getElementById("app").style.opacity = 1;
+
+
+
+            audioOutputDevices = (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === 'audiooutput');
+            console.log("audioOutputDevices");
 
             var dt = await axios.get("/rest/api/translateLang");
             this.avaibleLangs = dt.data.languages;
