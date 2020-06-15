@@ -67,7 +67,7 @@ router.get('/:eventid/:meetingId/?:novideo',  async (req, res, next) =>{
 
    // if(!req.session["user"+user.eventid])
     //    return res.redirect("/login/"+req.params.eventid+"?redirect="+encodeURI('/meeting/'+req.params.eventid+"/"+req.params.meetingId))
-    res.render('meeting', { title: 'ON.event Переговорная комната',eventid:req.params.eventid ,meetRoomid:req.params.meetingId, novideo:req.params.novideo?true:false});;//, user: req.session["user"+user.eventid]});
+    res.render('meeting', { title: 'ON.event Переговорная комната',eventid:req.params.eventid ,meetRoomid:req.params.meetingId, novideo:req.params.novideo=="novideo"?true:false});;//, user: req.session["user"+user.eventid]});
 
 })
 
