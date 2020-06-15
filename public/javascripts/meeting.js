@@ -35,7 +35,7 @@ window.onload=async ()=> {
             audioOutputDevicesShow:false,
             audioActiveDevice: null,
             novideo:novideo,
-            firstButton:false,
+            firstButton:true,
             socket:null,
 
         },
@@ -48,7 +48,7 @@ window.onload=async ()=> {
             chatAddSmile: chatAddSmile,
             sectActive: sectActive,
             firstButtonClick:function(){
-                this.firstButton=true;
+                this.firstButton=false;
                 this.socket.emit("getMeetingVideos");
             },
             hideDesktop: function () {
