@@ -134,7 +134,7 @@ class socket{
                     for(var b of a.streamData)
                     {
                         j++;
-                       await delay(()=>{socket.emit("newStream", b)},1000 *(j+i));
+                       await delay(()=>{socket.emit("newStream", b); console.log('emit new stream', b)},1000 *(j+i));
                     }
 
                 }
