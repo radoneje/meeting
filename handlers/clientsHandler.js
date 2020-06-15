@@ -45,7 +45,7 @@ class Clients{
         this.clients.forEach(c=>{
             if(c.isActive && c.meetid==meetid) {
                 if(msg=="newStream")
-                    console.log("sendToRoomUsers", msg)
+                    console.log("sendToRoomUsers", msg, this.clients.length)
                 c.socket.emit(msg, data);
             }
         });
