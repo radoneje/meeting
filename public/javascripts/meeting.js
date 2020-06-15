@@ -30,11 +30,11 @@ window.onload=async ()=> {
             users: [],
             langCh: [],
             showLangCh: false,
-            maxConnect:false,
-             audioOutputDevices:[],
-             audioActiveDevice:null
+            maxConnect: false,
+            audioOutputDevices: [],
+            audioActiveDevice: null
 
-        ,
+        },
         methods: {
             meetchatTextOnPaste: meetchatTextOnPaste,
             chatFileClick: chatFileClick,
@@ -232,7 +232,7 @@ window.onload=async ()=> {
 
             try {
                 _this.audioOutputDevices = (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === 'audiooutput');
-                _this.audioActiveDevice = audioOutputDevices.filter(device => device.deviceId === 'default')[0];
+                _this.audioActiveDevice = _this.audioOutputDevices.filter(device => device.deviceId === 'default')[0];
             }
             catch (e) {
                 console.warn("no output aodio devices");
