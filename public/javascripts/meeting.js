@@ -427,7 +427,7 @@ window.onload=async ()=> {
                         _this.langCh = _this.langCh.filter(l => l.id != data.id);
                     });
                     socket.on('newStream', async (data) => {
-                        console.log('newStream', data.streamid,meetRoomid != data.meetid, v.streamid )
+                        console.log('newStream', data.streamid,meetRoomid != data.meetid, arrVideo )
 
                         if (meetRoomid != data.meetid)
                             return; //видео чужих комнат
