@@ -449,7 +449,7 @@ window.onload=async ()=> {
                             receiverItem.elem = document.getElementById('video_' + receiverItem.id);
                             try {
                                 if (audioActiveDevice)
-                                    receiverItem.elem.setSinkId(audioActiveDevice.deviceId)
+                                    receiverItem.elem.setSinkId(_this.audioActiveDevice.deviceId)
                             }
                             catch (e) {
                                 console.warn("cant setSinkId ", e);
