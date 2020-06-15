@@ -8,6 +8,7 @@ window.onload=async ()=> {
     var BitrateCfg = null;
     var arrVideo = [];
     var arrAudio = [];
+
     var app = new Vue({
         el: "#app",
         data: {
@@ -30,8 +31,10 @@ window.onload=async ()=> {
             langCh: [],
             showLangCh: false,
             maxConnect:false,
+             audioOutputDevices:[],
+             audioActiveDevice:null
 
-        },
+        ,
         methods: {
             meetchatTextOnPaste: meetchatTextOnPaste,
             chatFileClick: chatFileClick,
@@ -226,6 +229,16 @@ window.onload=async ()=> {
         },
         mounted: async function () {
             var _this = this;
+
+            try {
+                _this.audioOutputDevices = (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === 'audiooutput');
+                _this.audioActiveDevice = audioOutputDevices.filter(device => device.deviceId === 'default')[0];
+            }
+            catch (e) {
+                console.warn("no output aodio devices");
+            }
+
+
             document.getElementById("app").style.opacity = 1;
 
             axios.get("/rest/api/eventRooms/" + eventid + "/" + 0)
