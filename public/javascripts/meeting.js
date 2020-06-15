@@ -300,7 +300,7 @@ window.onload=async ()=> {
                     socket.emit("hello", {userid: user.id, meetid: meetRoomid})
                     var dt = await axios.get('/rest/api/constraints');
                     _this.constraints = dt.data;
-                    if(!novideo) {
+                    if (!novideo) {
                         videoItem.streamid = socket.id;
                         videoItem.elem = document.getElementById('video_' + videoItem.id);
                     }
@@ -309,92 +309,94 @@ window.onload=async ()=> {
                         socket.emit("getMeetingVideos");
                     }, 3000);
 
-                    if(!novideo)
-                    try {
-                        var stream = await navigator.mediaDevices.getUserMedia(_this.constraints);
-                        videoItem.elem.srcObject = stream;
+                    if (!novideo)
+                    {
+                        try {
+                            var stream = await navigator.mediaDevices.getUserMedia(_this.constraints);
+                            videoItem.elem.srcObject = stream;
 
 
-                        setTimeout(async () => {
-                            videoItem.tracks = stream.getTracks();
-                            var newStream = new MediaStream();
-                            videoItem.tracks.forEach(t => {
-                                if (t.kind == "audio") newStream.addTrack(t)
-                            })
-                            var videoTrack = videoItem.tracks.filter(t => t.kind == "video")[0]
-                            videoItem.stream = newStream;
-
-                            videoItem.audioElem = document.getElementById('meetVideoLevel' + videoItem.id)
-                            var silentTimer=null;
-                            var silent=false;
-                            videoItem.analiser = await createAudioAnaliser(newStream, (val) => {
-                                // console.log(val, parseFloat((val/100)*100));
-                                if(val>15) {
-                                    if(!silent) {
-                                        silent=true;
-                                        arrAudio.forEach(a => {
-                                            a.elem.volume = 0;
-                                        })
-                                        console.log("silent on")
-                                    }
-                                    if(silentTimer)
-                                        clearTimeout(silentTimer);
-                                    silentTimer= setTimeout(()=>{
-                                        arrAudio.forEach(a => {
-                                            a.elem.volume=1;
-                                        })
-                                        console.log("silent off")
-                                        silent=false;
-                                    }, 1000)
-                                }
-                                videoItem.audioElem.style.height = parseFloat((val / 100) * 100) + "%"
-                            })
-
-                            var canvas = document.createElement("canvas");
-                            canvas.width = 16 * 30;
-                            canvas.height = 9 * 30;
-                            /* canvas.style.position="fixed"
-                             canvas.style.top="0"
-                             canvas.style.zIndex="10000"
-                             document.body.appendChild(canvas)*/
-
-                            var context = canvas.getContext('2d');
-                            var imgElem = document.createElement("img")
-                            imgElem.src = "/images/camera.svg"
-                            //document.body.appendChild(imgElem)
-                            draw(videoItem.elem, context, videoTrack, imgElem)
-                            var canvasStream = await canvas.captureStream(30)
-                            var canvasTracks = canvasStream.getTracks()
-
-                            canvasTracks.forEach(t => {
-                                if (t.kind == "video") newStream.addTrack(t)
-                            })
-                            console.log("my Stream before Published")
-
-                            await publishVideoToWowza(videoItem.streamid, videoItem.stream, WowzaCfg.data, BitrateCfg.data,
-                                (ret) => {
-                                       console.log("my Stream Published", ret)
-                                    videoItem.peerConnection = ret.peerConnection;
-                                    setTimeout(() => {
-                                        socket.emit("newStream", {
-                                            user: user,
-                                            isDesktop: false,
-                                            meetid: meetRoomid,
-                                            streamid: ret.streamid
-                                        });
-
-                                    }, 3000);
-
-
-                                },
-                                (err) => {
-                                    console.warn("wowza publish err", err)
+                            setTimeout(async () => {
+                                videoItem.tracks = stream.getTracks();
+                                var newStream = new MediaStream();
+                                videoItem.tracks.forEach(t => {
+                                    if (t.kind == "audio") newStream.addTrack(t)
                                 })
-                        }, 2000)
-                    } catch (e) {
-                        console.log("no local video allowed");
+                                var videoTrack = videoItem.tracks.filter(t => t.kind == "video")[0]
+                                videoItem.stream = newStream;
+
+                                videoItem.audioElem = document.getElementById('meetVideoLevel' + videoItem.id)
+                                var silentTimer = null;
+                                var silent = false;
+                                videoItem.analiser = await createAudioAnaliser(newStream, (val) => {
+                                    // console.log(val, parseFloat((val/100)*100));
+                                    if (val > 15) {
+                                        if (!silent) {
+                                            silent = true;
+                                            arrAudio.forEach(a => {
+                                                a.elem.volume = 0;
+                                            })
+                                            console.log("silent on")
+                                        }
+                                        if (silentTimer)
+                                            clearTimeout(silentTimer);
+                                        silentTimer = setTimeout(() => {
+                                            arrAudio.forEach(a => {
+                                                a.elem.volume = 1;
+                                            })
+                                            console.log("silent off")
+                                            silent = false;
+                                        }, 1000)
+                                    }
+                                    videoItem.audioElem.style.height = parseFloat((val / 100) * 100) + "%"
+                                })
+
+                                var canvas = document.createElement("canvas");
+                                canvas.width = 16 * 30;
+                                canvas.height = 9 * 30;
+                                /* canvas.style.position="fixed"
+                                 canvas.style.top="0"
+                                 canvas.style.zIndex="10000"
+                                 document.body.appendChild(canvas)*/
+
+                                var context = canvas.getContext('2d');
+                                var imgElem = document.createElement("img")
+                                imgElem.src = "/images/camera.svg"
+                                //document.body.appendChild(imgElem)
+                                draw(videoItem.elem, context, videoTrack, imgElem)
+                                var canvasStream = await canvas.captureStream(30)
+                                var canvasTracks = canvasStream.getTracks()
+
+                                canvasTracks.forEach(t => {
+                                    if (t.kind == "video") newStream.addTrack(t)
+                                })
+                                console.log("my Stream before Published")
+
+                                await publishVideoToWowza(videoItem.streamid, videoItem.stream, WowzaCfg.data, BitrateCfg.data,
+                                    (ret) => {
+                                        console.log("my Stream Published", ret)
+                                        videoItem.peerConnection = ret.peerConnection;
+                                        setTimeout(() => {
+                                            socket.emit("newStream", {
+                                                user: user,
+                                                isDesktop: false,
+                                                meetid: meetRoomid,
+                                                streamid: ret.streamid
+                                            });
+
+                                        }, 3000);
 
 
+                                    },
+                                    (err) => {
+                                        console.warn("wowza publish err", err)
+                                    })
+                            }, 2000)
+                        } catch (e) {
+                            console.log("no local video allowed");
+
+
+                        }
                     }
 
                     //    }
