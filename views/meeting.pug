@@ -45,9 +45,14 @@ block content
 
                 div.meetingBtnBox(v-if="!firstConnect")
                     div(v-if="audioActiveDevice")
-                        div.greenBtn.clearBtn.vCenterBtn(v-on:click.stop.prevent=";;" )
+                        div.greenBtn.clearBtn.vCenterBtn(v-on:click.stop.prevent="audioOutputDevicesShow=true" )
                             span outDevice: &nbsp;
                             span {{audioActiveDevice.label}}
+                            div.chooseLangBoxWr
+                                div.chooseArrow
+                                div.chooseLangBox(v-if="audioOutputDevicesShow")
+                                    div.chooseLangItem(v-for="item in audioOutputDevices" v-on:click.stop.prevent="changeActiveLang(item)" v-bind:class="{active:item.deviceId==audioActiveDevice.deviceId}" ) {{item.label}}
+
                     div(v-if="langCh.length>0")
                         div.greenBtn.clearBtn.vCenterBtn(v-on:click.stop.prevent="showLangCh=true" )
                             span Listen: &nbsp;
