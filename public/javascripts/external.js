@@ -350,7 +350,7 @@ window.onload=async ()=> {
 
 
             audioOutputDevices = (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === 'audiooutput');
-            console.log("audioOutputDevices");
+            console.log("audioOutputDevices", audioOutputDevices);
 
             var dt = await axios.get("/rest/api/translateLang");
             this.avaibleLangs = dt.data.languages;
