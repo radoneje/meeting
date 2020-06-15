@@ -300,8 +300,10 @@ window.onload=async ()=> {
                     socket.emit("hello", {userid: user.id, meetid: meetRoomid})
                     var dt = await axios.get('/rest/api/constraints');
                     _this.constraints = dt.data;
-                    videoItem.streamid = socket.id;
-                    videoItem.elem = document.getElementById('video_' + videoItem.id);
+                    if(!novideo) {
+                        videoItem.streamid = socket.id;
+                        videoItem.elem = document.getElementById('video_' + videoItem.id);
+                    }
 
                     setTimeout(() => {
                         console.log("getMeetingVideos send");
