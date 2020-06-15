@@ -431,7 +431,7 @@ window.onload=async ()=> {
                     socket.on('newStream', async (data) => {
                         console.log('newStream', data.streamid,meetRoomid != data.meetid, arrVideo )
 
-                        if (meetRoomid != data.meetid)
+                        if (meetRoomid != data.meetid && !novideo)
                             return; //видео чужих комнат
 
                         var ff = arrVideo.filter(v => v.streamid == data.streamid)
