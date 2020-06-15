@@ -44,6 +44,10 @@ block content
 
 
                 div.meetingBtnBox(v-if="!firstConnect")
+                    div(v-if="audioActiveDevice")
+                        div.greenBtn.clearBtn.vCenterBtn(v-on:click.stop.prevent=";;" )
+                            span outDevice: &nbsp;
+                            span {{audioActiveDevice.label}}
                     div(v-if="langCh.length>0")
                         div.greenBtn.clearBtn.vCenterBtn(v-on:click.stop.prevent="showLangCh=true" )
                             span Listen: &nbsp;
