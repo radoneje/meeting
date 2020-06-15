@@ -39,8 +39,11 @@ block content
                 div.Lbody
                     div(v-if="noWebrtc")
                         div Используйте  Chrome
+                    div.greenBtn.clearBtn.vCenterBtn(v-if="novideo && firstButton" v-on:click="firstButtonClick()") нажмите для начала
+
                     div(v-else)
                         div.meetVideoBox#meetVideoBox
+
 
 
 
