@@ -130,7 +130,6 @@ class socket{
                 for(var a of arr)
                 {
                     i++;
-
                     var j=0
                     for(var b of a.streamData)
                     {
