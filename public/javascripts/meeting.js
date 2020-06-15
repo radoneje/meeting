@@ -215,6 +215,21 @@ window.onload=async ()=> {
                     }
                     arrAudio = arrAudio.filter(r => r.id != id);
                 }
+            },
+            changeActiveOutDevice:function (item) {
+                this.audioOutputDevicesShow=false;
+                this.audioActiveDevice=item;
+                arrVideo.forEach(v => {
+                    console.log("changeVideoDevice ", v.elem)
+                    try {
+
+                        v.elem.setSinkId(item.deviceId);
+                        console.log('Audio is being played on ' + v.elem.sinkId);
+                    }
+                    catch (e) {
+                        console.warn("cant changeActiveOutDevice", e)
+                    }
+                });
             }
 
 
