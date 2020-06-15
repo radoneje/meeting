@@ -33,7 +33,8 @@ window.onload=async ()=> {
             maxConnect: false,
             audioOutputDevices: [],
             audioOutputDevicesShow:false,
-            audioActiveDevice: null
+            audioActiveDevice: null,
+            novideo:novideo
 
         },
         methods: {
@@ -272,13 +273,15 @@ window.onload=async ()=> {
             }
 
 
-            var videoItem = {id: 0, isMyVideo: true, user: user}
-            arrVideo.push(videoItem)
-            var video = await createVideo(videoItem.id, videoItem.isMyVideo, user);
-            videoLayout();
-            setTimeout(async () => {
+            if(!novideo) {
+                var videoItem = {id: 0, isMyVideo: true, user: user}
+                arrVideo.push(videoItem)
+                var video = await createVideo(videoItem.id, videoItem.isMyVideo, user);
+                videoLayout();
+                setTimeout(async () => {
 
-            }, 0);
+                }, 0);
+            }
 
             serverUrl = document.location.protocol + "//" + myHostname;//+"/meeting/socket";
             console.log('Connecting to server:' + serverUrl, {path: '/meeting/socket'});
@@ -305,6 +308,7 @@ window.onload=async ()=> {
                         socket.emit("getMeetingVideos");
                     }, 3000);
 
+                    if(!novideo)
                     try {
                         var stream = await navigator.mediaDevices.getUserMedia(_this.constraints);
                         videoItem.elem.srcObject = stream;
@@ -442,6 +446,14 @@ window.onload=async ()=> {
                         videoLayout();
                         setTimeout(async () => {
                             receiverItem.elem = document.getElementById('video_' + receiverItem.id);
+                            try {
+                                if (audioActiveDevice)
+                                    receiverItem.elem.setSinkId(audioActiveDevice.deviceId)
+                            }
+                            catch (e) {
+                                console.warn("cant setSinkId ", e);
+                            }
+
                             getVideoFromWowza(receiverItem, WowzaCfg.data, BitrateCfg.data,
                                 async (ret) => {
                                     /*(receiverItem.analiser=await createAudioAnaliser(receiverItem.srcObject, (val)=>{

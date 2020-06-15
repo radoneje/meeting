@@ -44,7 +44,7 @@ block content
 
 
 
-                div.meetingBtnBox(v-if="!firstConnect")
+                div.meetingBtnBox(v-if="novideo")
                     div(v-if="audioActiveDevice")
                         div.greenBtn.clearBtn.vCenterBtn(v-on:click.stop.prevent="audioOutputDevicesShow=true" )
                             span outDevice: &nbsp;
