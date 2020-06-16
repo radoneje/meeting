@@ -420,8 +420,8 @@ window.onload=async ()=> {
                         }
                     });
                     socket.on('maxConnect', async (data) => {
-                        _this.maxConnect=true;
-                        alert("Превышеночисло участников переговорной комнаты")
+                       // _this.maxConnect=true;
+                       // alert("Превышеночисло участников переговорной комнаты")
                     });
                     socket.on('langChClose', async (data) => {
 
