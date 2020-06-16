@@ -157,7 +157,8 @@ window.onload=async ()=> {
                     })
                     arrVideo.forEach(v => {
                         if (!v.isMyVideo)
-                            v.elem.muted = false
+                          //  v.elem.muted = false
+                            v.elem.volume=1;
                     });
                 } else {
                     arrAudio.forEach(a => {
@@ -176,7 +177,8 @@ window.onload=async ()=> {
                     arrVideo.forEach(v => {
                         console.log("MUST ", v.elem)
                         try {
-                            v.elem.muted = true;
+                          //  v.elem.muted = true;
+                            v.elem.volume=.2;
                         }
                         catch (e) {
                             
