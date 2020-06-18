@@ -346,6 +346,9 @@ window.onload=async ()=> {
                                             arrAudio.forEach(a => {
                                                 a.elem.volume = .2;
                                             })
+                                            arrVideo.forEach(a => {
+                                                a.elem.volume = .2;
+                                            })
                                             console.log("silent on")
                                         }
                                         if (silentTimer)
@@ -353,6 +356,9 @@ window.onload=async ()=> {
                                         silentTimer = setTimeout(() => {
                                             arrAudio.forEach(a => {
                                                 a.elem.volume = 1;
+                                            })
+                                            arrVideo.forEach(a => {
+                                                a.elem.volume = .2;
                                             })
                                             console.log("silent off")
                                             silent = false;
