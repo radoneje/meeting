@@ -195,7 +195,7 @@ window.onload=async ()=> {
                         audioContainer.appendChild(sel);
                         sel.addEventListener("change", (e) => {
                             //console.log(e, sel.value);
-                            audio.elem.setSinkId(item.deviceId);
+                            audio.elem.setSinkId(sel.value);
                             audioSel=true;
                         })
 
