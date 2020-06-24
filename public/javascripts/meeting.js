@@ -8,6 +8,7 @@ window.onload=async ()=> {
     var BitrateCfg = null;
     var arrVideo = [];
     var arrAudio = [];
+    var audioSel=false
 
     var app = new Vue({
         el: "#app",
@@ -164,37 +165,40 @@ window.onload=async ()=> {
                     arrAudio.forEach(a => {
                         _this.removeAudio(a.id);
                     })
-                    var audioContainer=document.createElement("div");
-                    audioContainer.id="audiobox"+item.id;
+                    var audioContainer = document.createElement("div");
+                    audioContainer.id = "audiobox" + item.id;
 
                     var audio = document.createElement("audio");
                     audio.id = item.id
                     audio.autoplay = "autoplay";
                     //  audio.controls="controls";
-                    audioContainer.style.marginBottom="10px"
-                    audioContainer.styleposition= "fixed";
-                    audioContainer.stylebottom- 0;
-                    audioContainer.style.zIndex= 10000;
+                    audioContainer.style.marginBottom = "10px"
+                    audioContainer.styleposition = "fixed";
+                    audioContainer.stylebottom - 0;
+                    audioContainer.style.zIndex = 10000;
                     audioContainer.appendChild(audio);
                     document.body.appendChild(audioContainer);
 
-                    var alabel=document.createElement("div");
-                    alabel.innerHTML=item.lang.id;
 
-                    audioContainer.appendChild(alabel);
-                    var sel=document.createElement("select");
-                    _this.audioOutputDevices.forEach(d=>{
-                        var o=document.createElement("option");
-                        sel.appendChild(o);
-                        o.innerHTML=d.label;
-                        o.value=d.deviceId;
-                        console.log("audio devise", d)
-                    })
-                    audioContainer.appendChild(sel);
-                    sel.addEventListener("change",(e)=>{
-                        //console.log(e, sel.value);
-                        audio.elem.setSinkId(item.deviceId);
-                    })
+                        var alabel = document.createElement("div");
+                        alabel.innerHTML = item.lang.id;
+
+                        audioContainer.appendChild(alabel);
+                        var sel = document.createElement("select");
+                        _this.audioOutputDevices.forEach(d => {
+                            var o = document.createElement("option");
+                            sel.appendChild(o);
+                            o.innerHTML = d.label;
+                            o.value = d.deviceId;
+                            console.log("audio devise", d)
+                        })
+                        audioContainer.appendChild(sel);
+                        sel.addEventListener("change", (e) => {
+                            //console.log(e, sel.value);
+                            audio.elem.setSinkId(item.deviceId);
+                            audioSel=true;
+                        })
+
 
                     var ret = await getVideoFromWowzaAync(item.id, audio, WowzaCfg.data, BitrateCfg.data);
                     var audioItem = {id: item.id, elem: audio, peerConnection: ret.peerConnection}
@@ -230,7 +234,7 @@ window.onload=async ()=> {
             removeAudio: function (id) {
                 console.log("removeAudio", id)
                 var _this=this;
-                if(audioActiveDevice)
+                if(audioSel)
                     return;
                 var items = arrAudio.filter(r => r.id == id);
                 if (items.length > 0) {
