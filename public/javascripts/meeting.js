@@ -173,8 +173,8 @@ window.onload=async ()=> {
                     audio.autoplay = "autoplay";
                     //  audio.controls="controls";
                     audioContainer.style.marginBottom = "10px"
-                    audioContainer.styleposition = "fixed";
-                    audioContainer.stylebottom - 0;
+                    audioContainer.style.position = "fixed";
+                    audioContainer.style.bottom = "20px";
                     audioContainer.style.zIndex = 10000;
                     audioContainer.appendChild(audio);
                     document.body.appendChild(audioContainer);
