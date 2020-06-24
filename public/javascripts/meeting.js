@@ -181,7 +181,7 @@ window.onload=async ()=> {
                     var sel=document.createElement("select");
                     _this.audioOutputDevices.forEach(d=>{
                         var o=document.createElement("option");
-                        sel.appendChild(0)
+                        sel.appendChild(o)
                         console.log("audio devise", d)
                     })
                     audioContainer.appendChild(sel);
