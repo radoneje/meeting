@@ -229,6 +229,9 @@ window.onload=async ()=> {
             },
             removeAudio: function (id) {
                 console.log("removeAudio", id)
+                var _this=this;
+                if(audioActiveDevice)
+                    return;
                 var items = arrAudio.filter(r => r.id == id);
                 if (items.length > 0) {
                     if (items[0].peerConnection) {
