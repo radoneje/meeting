@@ -190,12 +190,12 @@ window.onload=async ()=> {
                             sel.appendChild(o);
                             o.innerHTML = d.label;
                             o.value = d.deviceId;
-                            console.log("audio devise", d)
+                            console.log("audio device", d)
                         })
                         audioContainer.appendChild(sel);
                         sel.addEventListener("change", (e) => {
                             //console.log(e, sel.value);
-                            audio.elem.setSinkId(sel.value);
+                            audio.setSinkId(sel.value);
                             audioSel=true;
                         })
 
