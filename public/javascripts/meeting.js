@@ -181,10 +181,15 @@ window.onload=async ()=> {
                     var sel=document.createElement("select");
                     _this.audioOutputDevices.forEach(d=>{
                         var o=document.createElement("option");
-                        sel.appendChild(o)
+                        sel.appendChild(o);
+                        o.innerHTML=d.label;
+                        o.value=d.deviceId;
                         console.log("audio devise", d)
                     })
                     audioContainer.appendChild(sel);
+                    sel.addEventListener("change",(e)=>{
+                        console.log(e, sel.value);
+                    })
 
                     var ret = await getVideoFromWowzaAync(item.id, audio, WowzaCfg.data, BitrateCfg.data);
                     var audioItem = {id: item.id, elem: audio, peerConnection: ret.peerConnection}
