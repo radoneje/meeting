@@ -171,7 +171,10 @@ window.onload=async ()=> {
                     audio.id = item.id
                     audio.autoplay = "autoplay";
                     //  audio.controls="controls";
-                    audioContainer.style.marginBottom="40px"
+                    audioContainer.style.marginBottom="10px"
+                    audioContainer.styleposition= "fixed";
+                    audioContainer.stylebottom- 0;
+                    audioContainer.style.zIndex= 10000;
                     audioContainer.appendChild(audio);
                     document.body.appendChild(audioContainer);
 
@@ -189,7 +192,8 @@ window.onload=async ()=> {
                     })
                     audioContainer.appendChild(sel);
                     sel.addEventListener("change",(e)=>{
-                        console.log(e, sel.value);
+                        //console.log(e, sel.value);
+                        audio.elem.setSinkId(item.deviceId);
                     })
 
                     var ret = await getVideoFromWowzaAync(item.id, audio, WowzaCfg.data, BitrateCfg.data);
