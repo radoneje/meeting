@@ -176,6 +176,7 @@ window.onload=async ()=> {
 
                     var alabel=document.createElement("div");
                     alabel.innerHTML=item.title+" bla.bla"
+                    console.log(item)
                     audioContainer.appendChild(alabel);
 
                     var ret = await getVideoFromWowzaAync(item.id, audio, WowzaCfg.data, BitrateCfg.data);
