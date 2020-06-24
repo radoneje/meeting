@@ -164,11 +164,19 @@ window.onload=async ()=> {
                     arrAudio.forEach(a => {
                         _this.removeAudio(a.id);
                     })
+                    var audioContainer=document.createElement("div");
+                    audioContainer.id="audiobox"+item.id;
+
                     var audio = document.createElement("audio");
                     audio.id = item.id
                     audio.autoplay = "autoplay";
                     //  audio.controls="controls";
-                    document.body.appendChild(audio);
+                    audioContainer.appendChild(audio);
+                    document.body.appendChild(audioContainer);
+
+                    var alabel=document.createElement("div");
+                    alabel.innerHTML=item.title+" bla.bla"
+                    audioContainer.appendChild(alabel);
 
                     var ret = await getVideoFromWowzaAync(item.id, audio, WowzaCfg.data, BitrateCfg.data);
                     var audioItem = {id: item.id, elem: audio, peerConnection: ret.peerConnection}
@@ -210,7 +218,7 @@ window.onload=async ()=> {
                         items[0].peerConnection = null;
 
                         if (items[0].elem)
-                            items[0].elem.parentNode.removeChild(items[0].elem);
+                            items[0].elem.parentNode.parentNode.removeChild(items[0].elem.parentNode);
                     }
 
                     if (items[0].isActive) {
