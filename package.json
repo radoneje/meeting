@@ -14,7 +14,7 @@
     "express-fileupload": "^1.1.7-alpha.3",
     "express-session": "^1.17.0",
     "http-errors": "~1.6.3",
-    "knex": "^0.20.15",
+    "knex": "^2.4.0",
     "less-middleware": "^3.1.0",
     "morgan": "~1.9.1",
     "pg": "^8.0.2",
